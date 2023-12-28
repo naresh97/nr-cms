@@ -16,13 +16,12 @@ fn gen_title(cms_file: &CMSFile) -> &str {
 fn gen_navbar(cms_file: &CMSFile) -> String {
     let navbar = cms_file.templates.iter().find(|x| {
         match x {
-            TemplateType::Navbar { paths } => true,
+            TemplateType::Navbar { paths: _ } => true,
             _ => false
         }
     });
     match navbar {
         Some(TemplateType::Navbar { paths }) => {
-            let mut links = String::new();
             let paths: Vec<String> = paths.iter().filter_map(|x| {
                 let path_str = x.to_str();
                 match path_str {
@@ -62,7 +61,6 @@ fn gen_links(cms_file: &CMSFile) -> String {
     let links = links.iter().map(|x| {
         match x.0 {
             LinkType::Github => format!(r#"<a href="https://github.com/{}/">Github</a>"#, x.1),
-            _ => String::new()
         }
     }).collect::<Vec<_>>();
     links.join(" | ")
