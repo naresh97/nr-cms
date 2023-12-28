@@ -1,5 +1,7 @@
 # NR-CMS
 
+![Build & Tests](https://github.com/naresh97/nr-cms/actions/workflows/rust.yml/badge.svg)
+
 A lightweight CMS for my personal website
 
 ## Aims and Goals
