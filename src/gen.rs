@@ -1,4 +1,4 @@
-use crate::cms_types::{CMSFile, TemplateType};
+use crate::cms_types::{CMSFile, LinkType, TemplateType};
 
 fn gen_title(cms_file: &CMSFile) -> &str {
     let title = cms_file.templates.iter().find(|x| {
@@ -48,10 +48,31 @@ fn gen_paragraphs(cms_file: &CMSFile) -> String {
     paragraphs.join("\n")
 }
 
+fn gen_links(cms_file: &CMSFile) -> String {
+    let links = cms_file.templates.iter().filter_map(|x| {
+        match x {
+            TemplateType::Links { links } => Some(links),
+            _ => None
+        }
+    }).collect::<Vec<_>>();
+    if links.len() == 0 {
+        return String::new();
+    }
+    let links = links[0];
+    let links = links.iter().map(|x| {
+        match x.0 {
+            LinkType::Github => format!(r#"<a href="https://github.com/{}/">Github</a>"#, x.1),
+            _ => String::new()
+        }
+    }).collect::<Vec<_>>();
+    links.join(" | ")
+}
+
 pub fn generate_website(cms_file: &CMSFile) -> String {
     let title = gen_title(cms_file);
     let navbar = gen_navbar(cms_file);
     let paragraphs = gen_paragraphs(cms_file);
+    let links = gen_links(cms_file);
     let site = format!(r#"
     <html>
     <head>
@@ -61,6 +82,7 @@ pub fn generate_website(cms_file: &CMSFile) -> String {
     <h1>{title}</h1>
     {navbar}
     {paragraphs}
+    {links}
     </body>
     </html>
     "#);
