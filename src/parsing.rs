@@ -40,9 +40,6 @@ fn parse_navbar(content: &str) -> Option<TemplateType> {
         new_path.push(x);
         new_path
     }).collect();
-    for x in &paths {
-        println!("{}", x.display());
-    }
     Some(TemplateType::Navbar {
         paths
     })
