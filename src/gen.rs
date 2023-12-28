@@ -68,11 +68,26 @@ fn gen_links(cms_file: &CMSFile) -> String {
     links.join(" | ")
 }
 
+fn gen_nr_cms_info(cms_file: &CMSFile) -> String {
+    let info = cms_file.templates.iter().filter_map(|x| {
+        match x {
+            TemplateType::NRCMSInfo { text } => Some(text),
+            _ => None
+        }
+    }).collect::<Vec<_>>();
+    if info.len() == 0 {
+        return String::new();
+    }
+    let info = format!("<p>{}</p>", info[0]);
+    return info;
+}
+
 pub fn generate_website(cms_file: &CMSFile) -> String {
     let title = gen_title(cms_file);
     let navbar = gen_navbar(cms_file);
     let paragraphs = gen_paragraphs(cms_file);
     let links = gen_links(cms_file);
+    let nr_cms_info = gen_nr_cms_info(cms_file);
     let site = format!(r#"
     <html>
     <head>
@@ -83,6 +98,7 @@ pub fn generate_website(cms_file: &CMSFile) -> String {
     {navbar}
     {paragraphs}
     {links}
+    {nr_cms_info}
     </body>
     </html>
     "#);

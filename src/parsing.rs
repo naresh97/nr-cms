@@ -1,14 +1,17 @@
 use crate::cms_types::{CMSFile, LinkType, TemplateType};
 
-fn parse_title(content: &str) -> Option<TemplateType> {
+fn parse_title(content: Option<&&str>) -> Option<TemplateType> {
+    let content = *(content?);
     Some(TemplateType::Title { title: String::from(content) })
 }
 
-fn parse_paragraph(content: &str) -> Option<TemplateType> {
+fn parse_paragraph(content: Option<&&str>) -> Option<TemplateType> {
+    let content = *(content?);
     Some(TemplateType::Paragraph { content: String::from(content) })
 }
 
-fn parse_links(content: &str) -> Option<TemplateType> {
+fn parse_links(content: Option<&&str>) -> Option<TemplateType> {
+    let content = *(content?);
     let link_pairs: Vec<&str> = content.split(",").collect();
     let link_pairs: Vec<(LinkType, String)> = link_pairs.iter().map(|x| {
         let pair: Vec<&str> = x.split(":").collect();
@@ -33,7 +36,8 @@ fn parse_links(content: &str) -> Option<TemplateType> {
     return None;
 }
 
-fn parse_navbar(content: &str) -> Option<TemplateType> {
+fn parse_navbar(content: Option<&&str>) -> Option<TemplateType> {
+    let content = *(content?);
     let paths: Vec<std::path::PathBuf> = content.split(",").map(|x| {
         let mut new_path = std::path::PathBuf::new();
         new_path.push("./");
@@ -47,11 +51,11 @@ fn parse_navbar(content: &str) -> Option<TemplateType> {
 
 fn parse_template(template_content: &str) -> Option<TemplateType> {
     let template_name_content: Vec<&str> = template_content.split("|").collect();
-    if template_name_content.len() != 2 {
+    if template_name_content.len() < 1 {
         return None;
     }
     let template_name = template_name_content[0];
-    let template_content = template_name_content[1];
+    let template_content = template_name_content.get(1);
     match &template_name {
         &"Navbar" => parse_navbar(template_content),
         &"Title" => parse_title(template_content),
