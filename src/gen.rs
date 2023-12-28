@@ -1,6 +1,6 @@
 use crate::cms_types::{CMSFile, TemplateType};
 
-fn get_title(cms_file: &CMSFile) -> &str {
+fn gen_title(cms_file: &CMSFile) -> &str {
     let title = cms_file.templates.iter().find(|x| {
         if let TemplateType::Title { title: _title } = x {
             return true;
@@ -13,7 +13,7 @@ fn get_title(cms_file: &CMSFile) -> &str {
     }
 }
 
-fn get_navbar(cms_file: &CMSFile) -> String {
+fn gen_navbar(cms_file: &CMSFile) -> String {
     let navbar = cms_file.templates.iter().find(|x| {
         match x {
             TemplateType::Navbar { paths } => true,
@@ -37,9 +37,21 @@ fn get_navbar(cms_file: &CMSFile) -> String {
     }
 }
 
-pub fn generate_website(cmsfile: &CMSFile) -> String {
-    let title = get_title(cmsfile);
-    let navbar = get_navbar(cmsfile);
+fn gen_paragraphs(cms_file: &CMSFile) -> String {
+    let paragraphs = cms_file.templates.iter().filter_map(|x| {
+        match x {
+            TemplateType::Paragraph { content } => Some(content),
+            _ => None
+        }
+    }).collect::<Vec<&String>>();
+    let paragraphs = paragraphs.iter().map(|x| format!("<p>{x}</p>")).collect::<Vec<String>>();
+    paragraphs.join("\n")
+}
+
+pub fn generate_website(cms_file: &CMSFile) -> String {
+    let title = gen_title(cms_file);
+    let navbar = gen_navbar(cms_file);
+    let paragraphs = gen_paragraphs(cms_file);
     let site = format!(r#"
     <html>
     <head>
@@ -48,6 +60,7 @@ pub fn generate_website(cmsfile: &CMSFile) -> String {
     <body>
     <h1>{title}</h1>
     {navbar}
+    {paragraphs}
     </body>
     </html>
     "#);
