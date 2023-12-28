@@ -1,3 +1,4 @@
+use crate::assets;
 use crate::cms_types::{CMSFile, LinkType, TemplateType};
 
 fn gen_title(cms_file: &CMSFile) -> &str {
@@ -30,7 +31,7 @@ fn gen_navbar(cms_file: &CMSFile) -> String {
                 }
             }).collect();
             let paths = paths.join(" | ");
-            paths
+            format!("<p>{paths}</p>")
         }
         _ => String::new()
     }
@@ -63,7 +64,8 @@ fn gen_links(cms_file: &CMSFile) -> String {
             LinkType::Github => format!(r#"<a href="https://github.com/{}/">Github</a>"#, x.1),
         }
     }).collect::<Vec<_>>();
-    links.join(" | ")
+    let links = links.join(" | ");
+    return format!("<p>{links}</p>");
 }
 
 fn gen_nr_cms_info(cms_file: &CMSFile) -> String {
@@ -86,9 +88,11 @@ pub fn generate_website(cms_file: &CMSFile) -> String {
     let paragraphs = gen_paragraphs(cms_file);
     let links = gen_links(cms_file);
     let nr_cms_info = gen_nr_cms_info(cms_file);
+    let style = assets::styles::SITE_STYLE;
     let site = format!(r#"
     <html>
     <head>
+    {style}
     <title>{title}</title>
     </head>
     <body>
