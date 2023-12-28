@@ -1,6 +1,10 @@
-<html>
-<head></head>
-<body>
-{{Navbar}}
-</body>
-</html>
+{{Title|Nareshkumar Rao}}
+{{Navbar|blog.cms,contact.cms}}
+{{Paragraph|
+Nice of you to drop by!<br/>
+I'm Naresh, a software engineer based in Germany.<br/>
+Welcome to my website! I just use this space to share some of my links,<br/>
+some blog posts and whatever other stuff comes to mind!
+}}
+{{Links|Github:naresh97}}
+{{NKR-CMS-INFO}}
