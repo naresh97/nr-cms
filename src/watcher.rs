@@ -35,6 +35,27 @@ fn write_gen_site(
 }
 
 fn watch_event(_event: notify::Event, run_args: run_args::RunArgs) {
+    let handled = match _event.kind {
+        notify::EventKind::Any => (false, "any"),
+        notify::EventKind::Access(_) => (false, "access"),
+        notify::EventKind::Create(_) => (true, "create"),
+        notify::EventKind::Modify(_) => (true, "modify"),
+        notify::EventKind::Remove(_) => (true, "remove"),
+        notify::EventKind::Other => (false, "other"),
+    };
+    log::trace!(
+        "Filesystem event path: {}",
+        _event
+            .paths
+            .iter()
+            .filter_map(|x| x.to_str())
+            .collect::<Vec<_>>()
+            .join(",")
+    );
+    log::trace!("Filesystem event kind: {}", handled.1);
+    if !handled.0 {
+        return;
+    }
     log::info!("Filesystem change detected");
     let index_file = load_cms_site(run_args.in_source("index.cms"), &run_args);
     match index_file {

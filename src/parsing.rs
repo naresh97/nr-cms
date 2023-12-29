@@ -141,6 +141,7 @@ fn get_tags(content: &str) -> Option<Vec<&str>> {
         };
     }
     if scope_count != 0 {
+        log::error!("Opening/Closing tags mismatch.");
         return None;
     }
     Some(
