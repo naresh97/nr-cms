@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use notify::{RecursiveMode, Watcher};
 
 use crate::cms_types::CMSFile;

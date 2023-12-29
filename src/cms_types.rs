@@ -1,28 +1,29 @@
 #[derive(Eq, PartialEq, Hash)]
 pub enum LinkType {
-    Github
+    Github,
 }
 
 pub enum TemplateType {
     Title {
-        title: String
+        title: String,
     },
     Paragraph {
-        content: String
+        content: String,
     },
     Links {
-        links: std::collections::HashMap<LinkType, String>
+        links: std::collections::HashMap<LinkType, String>,
     },
     Navbar {
-        paths: Vec<std::path::PathBuf>
+        paths: Vec<std::path::PathBuf>,
     },
     NRCMSInfo {
-        text: &'static str
+        text: &'static str,
     },
-    Image{
+    Image {
         url: String,
-        copy_asset: bool
-    }
+        copy_asset: bool,
+        size: Option<u32>,
+    },
 }
 
 pub struct CMSFile {

@@ -98,7 +98,11 @@ fn gen_image(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
         .templates
         .iter()
         .filter_map(|x| match x {
-            TemplateType::Image { url, copy_asset } => Some((url, copy_asset)),
+            TemplateType::Image {
+                url,
+                copy_asset,
+                size,
+            } => Some((url, copy_asset, size)),
             _ => None,
         })
         .collect::<Vec<_>>();
@@ -109,7 +113,10 @@ fn gen_image(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
     let image = image.unwrap();
 
     if *image.1 {
-        let result = run_args.copy_asset(image.0);
+        let result = match image.2 {
+            Some(x) => run_args.copy_asset_img(image.0, *x),
+            _ => run_args.copy_asset(image.0),
+        };
         if result.is_err() {
             return String::new();
         }

@@ -80,7 +80,11 @@ fn parse_image(content: Option<&&str>, run_args: &run_args::RunArgs) -> Option<T
         url = get_img_as_b64_url(&source_url.as_path(), size).ok()?;
         copy_asset = false;
     }
-    Some(TemplateType::Image { url, copy_asset })
+    Some(TemplateType::Image {
+        url,
+        copy_asset,
+        size,
+    })
 }
 
 fn parse_template(template_content: &str, run_args: &run_args::RunArgs) -> Option<TemplateType> {

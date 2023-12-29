@@ -1,3 +1,5 @@
+use crate::img_handling;
+
 #[derive(Clone)]
 pub struct RunArgs {
     pub generation_dir: String,
@@ -17,17 +19,9 @@ impl RunArgs {
         pathbuf.push(path);
         pathbuf
     }
-    pub fn copy_asset(&self, path: &str) -> Result<(), std::io::Error> {
-        use std::path::PathBuf;
-        let mut target = PathBuf::new();
-        target.push(&self.generation_dir);
-        target.push(path);
-        let target = target;
-
-        let mut source = PathBuf::new();
-        source.push(&self.source_dir);
-        source.push(path);
-        let source = source;
+    pub fn copy_asset(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let target = self.in_gen(path);
+        let source = self.in_source(path);
 
         let target_parent = target.parent().ok_or(std::io::Error::new(
             std::io::ErrorKind::NotFound,
@@ -39,5 +33,11 @@ impl RunArgs {
         std::fs::create_dir_all(target_parent)?;
         std::fs::copy(source, target)?;
         return Ok(());
+    }
+    pub fn copy_asset_img(&self, path: &str, size: u32) -> Result<(), Box<dyn std::error::Error>> {
+        let target = self.in_gen(path);
+        let source = self.in_source(path);
+        img_handling::resize_image(&source, &target, size)?;
+        Ok(())
     }
 }
