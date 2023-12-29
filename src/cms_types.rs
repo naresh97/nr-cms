@@ -19,6 +19,10 @@ pub enum TemplateType {
     NRCMSInfo {
         text: &'static str
     },
+    Image{
+        url: String,
+        copy_asset: bool
+    }
 }
 
 pub struct CMSFile {
