@@ -35,15 +35,12 @@ fn watch_event(_event: notify::Event, run_args: run_args::RunArgs) {
 
 fn watch_error(_e: notify::Error) {}
 
-pub fn watch(run_args: run_args::RunArgs) {
+pub fn watch(run_args: run_args::RunArgs) -> Result<(), notify::Error> {
     let source_dir = &run_args.source_dir.clone();
     let mut watcher = notify::recommended_watcher(move |res| match res {
         Ok(event) => watch_event(event, run_args.clone()),
         Err(e) => watch_error(e),
-    })
-    .unwrap();
-    watcher
-        .watch(std::path::Path::new(source_dir), RecursiveMode::Recursive)
-        .unwrap();
+    })?;
+    watcher.watch(std::path::Path::new(source_dir), RecursiveMode::Recursive)?;
     loop {}
 }

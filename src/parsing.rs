@@ -23,24 +23,21 @@ fn parse_links(content: Option<&&str>) -> Option<TemplateType> {
     let link_pairs: Vec<&str> = content.split(",").collect();
     let link_pairs: Vec<(LinkType, String)> = link_pairs
         .iter()
-        .map(|x| {
+        .filter_map(|x| {
             let pair: Vec<&str> = x.split(":").collect();
             if pair.len() == 2 {
                 let link_type = match pair[0] {
                     "Github" => Some(LinkType::Github),
                     _ => None,
                 };
-                if link_type.is_none() {
-                    return None;
+                if let Some(link_type) = link_type {
+                    let pair = (link_type, String::from(pair[1]));
+                    return Some(pair);
                 }
-                let link_type = link_type.unwrap();
-                let pair = (link_type, String::from(pair[1]));
-                return Some(pair);
+                return None;
             }
             return None;
         })
-        .filter(|x| x.is_some())
-        .map(|x| x.unwrap())
         .collect::<Vec<(LinkType, String)>>();
     let link_pairs: std::collections::HashMap<_, _> = link_pairs.into_iter().collect();
     if link_pairs.len() > 0 {
@@ -119,15 +116,14 @@ pub fn parse_templates(cms_file: &mut CMSFile, run_args: &run_args::RunArgs) {
     loop {
         let opening = template_opening.next();
         let closing = template_closing.next();
-        if opening == None && closing == None {
-            break;
-        }
-        let opening = opening.unwrap().0;
-        let closing = closing.unwrap().0;
-        let template_content = &original_content[opening + 2..closing];
-        let template = parse_template(template_content, run_args);
-        if template.is_some() {
-            cms_file.templates.push(template.unwrap());
+        if let (Some(opening), Some(closing)) = (opening, closing) {
+            let opening = opening.0;
+            let closing = closing.0;
+            let template_content = &original_content[opening + 2..closing];
+            let template = parse_template(template_content, run_args);
+            if let Some(template) = template {
+                cms_file.templates.push(template);
+            }
         }
     }
 }

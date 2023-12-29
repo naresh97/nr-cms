@@ -111,22 +111,19 @@ fn gen_image(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
         })
         .collect::<Vec<_>>();
     let image = image.get(0);
-    if image.is_none() {
-        return String::new();
-    }
-    let image = image.unwrap();
-
-    if *image.1 {
-        let result = match image.2 {
-            Some(x) => run_args.copy_asset_img(image.0, *x),
-            _ => run_args.copy_asset(image.0),
-        };
-        if result.is_err() {
-            return String::new();
+    if let Some(image) = image {
+        if *image.1 {
+            let result = match image.2 {
+                Some(x) => run_args.copy_asset_img(image.0, *x),
+                _ => run_args.copy_asset(image.0),
+            };
+            if result.is_err() {
+                return String::new();
+            }
         }
+        return format!(r#"<p><img src="{}"/></p>"#, image.0);
     }
-
-    format!(r#"<p><img src="{}"/></p>"#, image.0)
+    String::new()
 }
 
 pub fn generate_website(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {

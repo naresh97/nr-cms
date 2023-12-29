@@ -11,5 +11,5 @@ fn main() {
         generation_dir: String::from("./gen"),
         source_dir: String::from("./sample"),
     };
-    watcher::watch(run_args);
+    watcher::watch(run_args).expect("Could not initialize filesystem watcher");
 }
