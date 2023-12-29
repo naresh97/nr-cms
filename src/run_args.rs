@@ -4,6 +4,7 @@ use crate::img_handling;
 pub struct RunArgs {
     pub generation_dir: String,
     pub source_dir: String,
+    pub max_log_level: Option<String>,
 }
 
 impl RunArgs {

@@ -19,7 +19,7 @@ fn load_cms_site(
 }
 
 fn write_gen_site(file_path: std::path::PathBuf, cms_site: &CMSSite, run_args: &run_args::RunArgs) {
-    println!("Writing generated files");
+    log::info!("Generating website");
     let gen_file = generate_website(&cms_site, run_args);
     let parent = file_path.parent().expect("Could not get parent directory");
     std::fs::create_dir_all(parent).expect("Could not create necessary directories");
@@ -27,7 +27,7 @@ fn write_gen_site(file_path: std::path::PathBuf, cms_site: &CMSSite, run_args: &
 }
 
 fn watch_event(_event: notify::Event, run_args: run_args::RunArgs) {
-    println!("Filesystem change detected");
+    log::info!("Filesystem change detected");
     let index_file = load_cms_site(run_args.in_source("index.cms"), &run_args)
         .expect("Could not load index.cms");
     write_gen_site(run_args.in_gen("index.html"), &index_file, &run_args);
