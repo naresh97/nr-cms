@@ -1,5 +1,5 @@
 use crate::{
-    cms_types::{CMSFile, LinkType, TemplateType},
+    cms_types::{CMSSite, LinkType, TemplateType},
     img_handling::{get_img_as_b64_url, get_img_b64_size},
     run_args,
 };
@@ -109,8 +109,8 @@ fn parse_nkr_cms_info() -> Option<TemplateType> {
     });
 }
 
-pub fn parse_templates(cms_file: &mut CMSFile, run_args: &run_args::RunArgs) {
-    let original_content = &cms_file.original_content;
+pub fn parse_templates(cms_site: &mut CMSSite, run_args: &run_args::RunArgs) {
+    let original_content = &cms_site.original_content;
     let mut template_opening = original_content.match_indices("{{");
     let mut template_closing = original_content.match_indices("}}");
     loop {
@@ -122,7 +122,7 @@ pub fn parse_templates(cms_file: &mut CMSFile, run_args: &run_args::RunArgs) {
             let template_content = &original_content[opening + 2..closing];
             let template = parse_template(template_content, run_args);
             if let Some(template) = template {
-                cms_file.templates.push(template);
+                cms_site.templates.push(template);
             }
         }
     }

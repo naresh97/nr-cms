@@ -1,8 +1,8 @@
-use crate::cms_types::{CMSFile, LinkType, TemplateType};
+use crate::cms_types::{CMSSite, LinkType, TemplateType};
 use crate::{assets, run_args};
 
-fn gen_title(cms_file: &CMSFile) -> &str {
-    let title = cms_file.templates.iter().find(|x| {
+fn gen_title(cms_site: &CMSSite) -> &str {
+    let title = cms_site.templates.iter().find(|x| {
         if let TemplateType::Title { title: _title } = x {
             return true;
         }
@@ -14,8 +14,8 @@ fn gen_title(cms_file: &CMSFile) -> &str {
     }
 }
 
-fn gen_navbar(cms_file: &CMSFile) -> String {
-    let navbar = cms_file.templates.iter().find(|x| match x {
+fn gen_navbar(cms_site: &CMSSite) -> String {
+    let navbar = cms_site.templates.iter().find(|x| match x {
         TemplateType::Navbar { paths: _ } => true,
         _ => false,
     });
@@ -38,8 +38,8 @@ fn gen_navbar(cms_file: &CMSFile) -> String {
     }
 }
 
-fn gen_paragraphs(cms_file: &CMSFile) -> String {
-    let paragraphs = cms_file
+fn gen_paragraphs(cms_site: &CMSSite) -> String {
+    let paragraphs = cms_site
         .templates
         .iter()
         .filter_map(|x| match x {
@@ -54,8 +54,8 @@ fn gen_paragraphs(cms_file: &CMSFile) -> String {
     paragraphs.join("\n")
 }
 
-fn gen_links(cms_file: &CMSFile) -> String {
-    let links = cms_file
+fn gen_links(cms_site: &CMSSite) -> String {
+    let links = cms_site
         .templates
         .iter()
         .filter_map(|x| match x {
@@ -81,8 +81,8 @@ fn gen_links(cms_file: &CMSFile) -> String {
     return format!("<p>{links}</p>");
 }
 
-fn gen_nr_cms_info(cms_file: &CMSFile) -> String {
-    let info = cms_file
+fn gen_nr_cms_info(cms_site: &CMSSite) -> String {
+    let info = cms_site
         .templates
         .iter()
         .filter_map(|x| match x {
@@ -97,8 +97,8 @@ fn gen_nr_cms_info(cms_file: &CMSFile) -> String {
     return info;
 }
 
-fn gen_image(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
-    let image = cms_file
+fn gen_image(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
+    let image = cms_site
         .templates
         .iter()
         .filter_map(|x| match x {
@@ -126,14 +126,14 @@ fn gen_image(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
     String::new()
 }
 
-pub fn generate_website(cms_file: &CMSFile, run_args: &run_args::RunArgs) -> String {
-    let title = gen_title(cms_file);
-    let navbar = gen_navbar(cms_file);
-    let paragraphs = gen_paragraphs(cms_file);
-    let links = gen_links(cms_file);
-    let nr_cms_info = gen_nr_cms_info(cms_file);
+pub fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
+    let title = gen_title(cms_site);
+    let navbar = gen_navbar(cms_site);
+    let paragraphs = gen_paragraphs(cms_site);
+    let links = gen_links(cms_site);
+    let nr_cms_info = gen_nr_cms_info(cms_site);
     let style = assets::styles::SITE_STYLE;
-    let image = gen_image(cms_file, run_args);
+    let image = gen_image(cms_site, run_args);
     let site = format!(
         r#"
     <html>

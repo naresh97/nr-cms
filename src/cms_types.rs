@@ -26,7 +26,7 @@ pub enum TemplateType {
     },
 }
 
-pub struct CMSFile {
+pub struct CMSSite {
     pub original_content: String,
     pub templates: Vec<TemplateType>,
 }
