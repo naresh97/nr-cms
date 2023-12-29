@@ -2,25 +2,25 @@ use crate::cms_types::{CMSSite, LinkType, TemplateType};
 use crate::{assets, run_args};
 
 fn gen_title(cms_site: &CMSSite) -> &str {
-    let title = cms_site.templates.iter().find(|x| {
-        if let TemplateType::Title { title: _title } = x {
-            return true;
-        }
-        return false;
-    });
+    let title = cms_site
+        .templates
+        .iter()
+        .filter_map(|x| x.get_title())
+        .next();
     match title {
-        Some(TemplateType::Title { title: m_title }) => m_title,
+        Some(title) => title,
         _ => "",
     }
 }
 
 fn gen_navbar(cms_site: &CMSSite) -> String {
-    let navbar = cms_site.templates.iter().find(|x| match x {
-        TemplateType::Navbar { paths: _ } => true,
-        _ => false,
-    });
+    let navbar = cms_site
+        .templates
+        .iter()
+        .filter_map(|x| x.get_navbar())
+        .next();
     match navbar {
-        Some(TemplateType::Navbar { paths }) => {
+        Some(paths) => {
             let paths: Vec<String> = paths
                 .iter()
                 .filter_map(|x| {
@@ -42,15 +42,12 @@ fn gen_paragraphs(cms_site: &CMSSite) -> String {
     let paragraphs = cms_site
         .templates
         .iter()
-        .filter_map(|x| match x {
-            TemplateType::Paragraph { content } => Some(content),
-            _ => None,
-        })
-        .collect::<Vec<&String>>();
+        .filter_map(|x| x.get_paragraph())
+        .collect::<Vec<_>>();
     let paragraphs = paragraphs
         .iter()
         .map(|x| format!("<p>{x}</p>"))
-        .collect::<Vec<String>>();
+        .collect::<Vec<_>>();
     paragraphs.join("\n")
 }
 
@@ -58,10 +55,7 @@ fn gen_links(cms_site: &CMSSite) -> String {
     let links = cms_site
         .templates
         .iter()
-        .filter_map(|x| match x {
-            TemplateType::Links { links } => Some(links),
-            _ => None,
-        })
+        .filter_map(|x| x.get_links())
         .collect::<Vec<_>>();
     if links.len() == 0 {
         return String::new();
@@ -85,32 +79,23 @@ fn gen_nr_cms_info(cms_site: &CMSSite) -> String {
     let info = cms_site
         .templates
         .iter()
-        .filter_map(|x| match x {
-            TemplateType::NRCMSInfo { text } => Some(text),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    if info.len() == 0 {
-        return String::new();
+        .filter_map(|x| x.get_nr_cms_info())
+        .next();
+    match info {
+        Some(info) => {
+            let info = format!("<p>{}</p>", info);
+            return info;
+        }
+        _ => String::new(),
     }
-    let info = format!("<p>{}</p>", info[0]);
-    return info;
 }
 
 fn gen_image(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
     let image = cms_site
         .templates
         .iter()
-        .filter_map(|x| match x {
-            TemplateType::Image {
-                url,
-                copy_asset,
-                size,
-            } => Some((url, copy_asset, size)),
-            _ => None,
-        })
-        .collect::<Vec<_>>();
-    let image = image.get(0);
+        .filter_map(|x| x.get_image())
+        .next();
     if let Some(image) = image {
         if *image.1 {
             let result = match image.2 {

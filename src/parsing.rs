@@ -124,6 +124,8 @@ pub fn parse_templates(cms_site: &mut CMSSite, run_args: &run_args::RunArgs) {
             if let Some(template) = template {
                 cms_site.templates.push(template);
             }
+        } else {
+            break;
         }
     }
 }
