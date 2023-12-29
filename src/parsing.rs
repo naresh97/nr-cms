@@ -109,23 +109,80 @@ fn parse_nkr_cms_info() -> Option<TemplateType> {
     });
 }
 
+fn get_tags(content: &str) -> Option<Vec<&str>> {
+    const OPENING_BRACE: &str = "{{";
+    const CLOSING_BRACE: &str = "}}";
+    let mut braces_opening = content.match_indices(OPENING_BRACE).collect::<Vec<_>>();
+    let mut braces_closing = content.match_indices(CLOSING_BRACE).collect::<Vec<_>>();
+    braces_opening.append(&mut braces_closing);
+    let mut braces = braces_opening;
+    braces.sort_by(|a, b| a.0.cmp(&b.0));
+    let mut templates: Vec<(usize, usize)> = Vec::new();
+    let mut scope_count = 0;
+    let mut current_template: (usize, usize) = (0, 0);
+    for b in braces {
+        let index = b.0;
+        let braces = b.1;
+        match braces {
+            OPENING_BRACE => {
+                if scope_count == 0 {
+                    current_template.0 = index + 2;
+                }
+                scope_count += 1;
+            }
+            CLOSING_BRACE => {
+                scope_count -= 1;
+                if scope_count == 0 {
+                    current_template.1 = index;
+                    templates.push(current_template);
+                }
+            }
+            _ => (),
+        };
+    }
+    if scope_count != 0 {
+        return None;
+    }
+    Some(
+        templates
+            .iter()
+            .map(|x| {
+                let x = &content[x.0..x.1];
+                return x;
+            })
+            .collect::<Vec<_>>(),
+    )
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_get_tags() {
+        let test = "{{hello}} {{world}} {{outer {{inner}}}}";
+        let tags = get_tags(test);
+        assert!(tags.is_some());
+        if let Some(tags) = tags {
+            assert_eq!(tags.len(), 3);
+            assert_eq!(tags[0], "hello");
+            assert_eq!(tags[1], "world");
+            assert_eq!(tags[2], "outer {{inner}}");
+        }
+
+        let test = "{{hello}} {{there";
+        let tags = get_tags(test);
+        assert!(tags.is_none());
+    }
+}
+
 pub fn parse_templates(cms_site: &mut CMSSite, run_args: &run_args::RunArgs) {
-    let original_content = &cms_site.original_content;
-    let mut template_opening = original_content.match_indices("{{");
-    let mut template_closing = original_content.match_indices("}}");
-    loop {
-        let opening = template_opening.next();
-        let closing = template_closing.next();
-        if let (Some(opening), Some(closing)) = (opening, closing) {
-            let opening = opening.0;
-            let closing = closing.0;
-            let template_content = &original_content[opening + 2..closing];
+    let tags = get_tags(&cms_site.original_content);
+    if let Some(tags) = tags {
+        for template_content in tags {
             let template = parse_template(template_content, run_args);
             if let Some(template) = template {
                 cms_site.templates.push(template);
             }
-        } else {
-            break;
         }
     }
 }

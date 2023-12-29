@@ -7,6 +7,8 @@ mod run_args;
 mod watcher;
 
 fn main() {
+    env_logger::init();
+    log::info!("Starting NKR-CMS.");
     let run_args = run_args::RunArgs {
         generation_dir: String::from("./gen"),
         source_dir: String::from("./sample"),

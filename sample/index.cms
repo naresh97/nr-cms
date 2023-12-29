@@ -1,5 +1,5 @@
 {{Title|Nareshkumar Rao}}
-{{Navbar|blog.cms,contact.cms}}
+{{Navbar|home,blog,contact}}
 {{Image|sample.jpg,200}}
 {{Paragraph|
 Nice of you to drop by!<br/>
@@ -9,3 +9,18 @@ some blog posts and whatever other stuff comes to mind!
 }}
 {{Links|Github:naresh97}}
 {{NKR-CMS-INFO}}
+
+{{Page|
+{{as|blog}}
+{{Paragraph|
+Welcome to my blog!
+}}
+}}
+
+{{Page|
+{{as|contact}}
+{{Paragraph|
+This is the contact page!
+}}
+}}
+
