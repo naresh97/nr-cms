@@ -4,7 +4,7 @@ pub static INVERTOCAT_SVG: &str = r##"
  "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
  width="240.000000pt" height="240.000000pt" viewBox="0 0 240.000000 240.000000"
- preserveAspectRatio="xMidYMid meet">
+ preserveAspectRatio="xMidYMid meet" class="link_image">
 
 <g transform="translate(0.000000,240.000000) scale(0.100000,-0.100000)"
 fill="#000000" stroke="none">

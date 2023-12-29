@@ -70,7 +70,11 @@ fn gen_links(cms_file: &CMSFile) -> String {
     let links = links
         .iter()
         .map(|x| match x.0 {
-            LinkType::Github => format!(r#"<a href="https://github.com/{}/">Github</a>"#, x.1),
+            LinkType::Github => format!(
+                r#"<a href="https://github.com/{}/">{} Github</a>"#,
+                x.1,
+                assets::svg_images::INVERTOCAT_SVG
+            ),
         })
         .collect::<Vec<_>>();
     let links = links.join(" | ");

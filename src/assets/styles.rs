@@ -5,5 +5,10 @@ body{
     flex-direction: column;
     align-items: center;
 }
+.link_image{
+    height: 1em;
+    width: auto;
+    vertical-align: text-top;
+}
 </style>
 "##;
