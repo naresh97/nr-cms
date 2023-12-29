@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use notify::{RecursiveMode, Watcher};
 
 use crate::cms_types::CMSSite;

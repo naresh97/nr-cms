@@ -16,7 +16,7 @@ pub enum TemplateType {
         links: HashMap<LinkType, String>,
     },
     Navbar {
-        paths: Vec<std::path::PathBuf>,
+        paths: Vec<String>,
     },
     NRCMSInfo {
         text: &'static str,
@@ -50,7 +50,7 @@ impl TemplateType {
         }
         return None;
     }
-    pub fn get_navbar(&self) -> Option<&Vec<PathBuf>> {
+    pub fn get_navbar(&self) -> Option<&Vec<String>> {
         if let TemplateType::Navbar { paths } = self {
             return Some(paths);
         }

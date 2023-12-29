@@ -10,5 +10,8 @@ body{
     width: auto;
     vertical-align: text-top;
 }
+.page{
+    visibility: collapse;
+}
 </style>
 "##;

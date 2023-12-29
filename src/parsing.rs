@@ -50,15 +50,10 @@ fn parse_links(content: Option<&str>) -> Option<TemplateType> {
 
 fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
-    let paths: Vec<std::path::PathBuf> = content
+    let paths = content
         .split(",")
-        .map(|x| {
-            let mut new_path = std::path::PathBuf::new();
-            new_path.push("./");
-            new_path.push(x);
-            new_path
-        })
-        .collect();
+        .map(|x| String::from(x))
+        .collect::<Vec<_>>();
     Some(TemplateType::Navbar { paths })
 }
 

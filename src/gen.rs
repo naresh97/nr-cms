@@ -23,13 +23,7 @@ fn gen_navbar(cms_site: &CMSSite) -> String {
         Some(paths) => {
             let paths: Vec<String> = paths
                 .iter()
-                .filter_map(|x| {
-                    let path_str = x.to_str();
-                    match path_str {
-                        Some(path_str) => Some(format!("<a href=\"{path_str}\">{path_str}</a>")),
-                        _ => None,
-                    }
-                })
+                .map(|x| format!("<a href=\"?page={x}\">{x}</a>"))
                 .collect();
             let paths = paths.join(" | ");
             format!("<p>{paths}</p>")
@@ -133,11 +127,13 @@ pub fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> Str
     let navbar = gen_navbar(cms_site);
     let nr_cms_info = gen_nr_cms_info(cms_site);
     let style = assets::styles::SITE_STYLE;
+    let script = assets::scripts::PAGE_LOGIC;
     let pages = gen_pages(cms_site, run_args);
     let site = format!(
         r#"
     <html>
     <head>
+    {script}
     {style}
     <title>{title}</title>
     </head>
