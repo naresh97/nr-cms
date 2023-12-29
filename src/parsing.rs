@@ -1,25 +1,27 @@
+use std::collections::HashMap;
+
 use crate::{
-    cms_types::{CMSSite, LinkType, TemplateType},
+    cms_types::{CMSPage, LinkType, TemplateType},
     img_handling::{get_img_as_b64_url, get_img_b64_size},
     run_args,
 };
 
-fn parse_title(content: Option<&&str>) -> Option<TemplateType> {
-    let content = *(content?);
+fn parse_title(content: Option<&str>) -> Option<TemplateType> {
+    let content = content?;
     Some(TemplateType::Title {
         title: String::from(content),
     })
 }
 
-fn parse_paragraph(content: Option<&&str>) -> Option<TemplateType> {
-    let content = *(content?);
+fn parse_paragraph(content: Option<&str>) -> Option<TemplateType> {
+    let content = content?;
     Some(TemplateType::Paragraph {
         content: String::from(content),
     })
 }
 
-fn parse_links(content: Option<&&str>) -> Option<TemplateType> {
-    let content = *(content?);
+fn parse_links(content: Option<&str>) -> Option<TemplateType> {
+    let content = content?;
     let link_pairs: Vec<&str> = content.split(",").collect();
     let link_pairs: Vec<(LinkType, String)> = link_pairs
         .iter()
@@ -46,8 +48,8 @@ fn parse_links(content: Option<&&str>) -> Option<TemplateType> {
     return None;
 }
 
-fn parse_navbar(content: Option<&&str>) -> Option<TemplateType> {
-    let content = *(content?);
+fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
+    let content = content?;
     let paths: Vec<std::path::PathBuf> = content
         .split(",")
         .map(|x| {
@@ -60,8 +62,8 @@ fn parse_navbar(content: Option<&&str>) -> Option<TemplateType> {
     Some(TemplateType::Navbar { paths })
 }
 
-fn parse_image(content: Option<&&str>, run_args: &run_args::RunArgs) -> Option<TemplateType> {
-    let content = *(content?);
+fn parse_image(content: Option<&str>, run_args: &run_args::RunArgs) -> Option<TemplateType> {
+    let content = content?;
     let args = content.split(",").collect::<Vec<_>>();
     let mut url = String::from(*args.get(0)?);
     let size = args.get(1);
@@ -84,20 +86,41 @@ fn parse_image(content: Option<&&str>, run_args: &run_args::RunArgs) -> Option<T
     })
 }
 
-fn parse_template(template_content: &str, run_args: &run_args::RunArgs) -> Option<TemplateType> {
-    let template_name_content: Vec<&str> = template_content.split("|").collect();
-    if template_name_content.len() < 1 {
-        return None;
-    }
-    let template_name = template_name_content[0];
-    let template_content = template_name_content.get(1);
+fn parse_name(content: Option<&str>) -> Option<TemplateType> {
+    Some(TemplateType::Name {
+        name: String::from(content?),
+    })
+}
+
+fn parse_page(content: Option<&str>, run_args: &run_args::RunArgs) -> Option<CMSPage> {
+    let content = content?;
+    let (templates, pages) = parse_templates(content, run_args);
+    Some(CMSPage { templates })
+}
+
+enum TemplateOrPage {
+    Template(TemplateType),
+    Page(CMSPage),
+}
+
+fn parse_template(template_content: &str, run_args: &run_args::RunArgs) -> Option<TemplateOrPage> {
+    let template_separator = template_content.match_indices("|").next().map(|x| x.0);
+    let (template_name, template_content) = match template_separator {
+        Some(template_separator) => (
+            template_content.get(0..template_separator)?,
+            template_content.get(template_separator + 1..),
+        ),
+        _ => (template_content, None),
+    };
     match template_name {
-        "Navbar" => parse_navbar(template_content),
-        "Title" => parse_title(template_content),
-        "Paragraph" => parse_paragraph(template_content),
-        "Links" => parse_links(template_content),
-        "NKR-CMS-INFO" => parse_nkr_cms_info(),
-        "Image" => parse_image(template_content, run_args),
+        "Navbar" => parse_navbar(template_content).map(|x| TemplateOrPage::Template(x)),
+        "Title" => parse_title(template_content).map(|x| TemplateOrPage::Template(x)),
+        "Paragraph" => parse_paragraph(template_content).map(|x| TemplateOrPage::Template(x)),
+        "Links" => parse_links(template_content).map(|x| TemplateOrPage::Template(x)),
+        "NKR-CMS-INFO" => parse_nkr_cms_info().map(|x| TemplateOrPage::Template(x)),
+        "Image" => parse_image(template_content, run_args).map(|x| TemplateOrPage::Template(x)),
+        "Name" => parse_name(template_content).map(|x| TemplateOrPage::Template(x)),
+        "Page" => parse_page(template_content, run_args).map(|x| TemplateOrPage::Page(x)),
         _ => None,
     }
 }
@@ -141,6 +164,7 @@ fn get_tags(content: &str) -> Option<Vec<&str>> {
         };
     }
     if scope_count != 0 {
+        log::debug!("{content}");
         log::error!("Opening/Closing tags mismatch.");
         return None;
     }
@@ -176,14 +200,29 @@ mod test {
     }
 }
 
-pub fn parse_templates(cms_site: &mut CMSSite, run_args: &run_args::RunArgs) {
-    let tags = get_tags(&cms_site.original_content);
+pub fn parse_templates(
+    content: &str,
+    run_args: &run_args::RunArgs,
+) -> (Vec<TemplateType>, HashMap<String, CMSPage>) {
+    let mut result: Vec<TemplateType> = Vec::new();
+    let mut pages: HashMap<String, CMSPage> = HashMap::new();
+    let tags = get_tags(content);
     if let Some(tags) = tags {
         for template_content in tags {
             let template = parse_template(template_content, run_args);
-            if let Some(template) = template {
-                cms_site.templates.push(template);
+            if let Some(TemplateOrPage::Template(template)) = template {
+                result.push(template);
+            } else if let Some(TemplateOrPage::Page(cms_page)) = template {
+                let name = cms_page
+                    .templates
+                    .iter()
+                    .filter_map(|x| x.get_name())
+                    .next();
+                if let Some(name) = name {
+                    pages.insert(String::from(name), cms_page);
+                }
             }
         }
     }
+    (result, pages)
 }

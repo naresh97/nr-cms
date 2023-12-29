@@ -1,3 +1,5 @@
+use std::{collections::HashMap, path::PathBuf};
+
 #[derive(Eq, PartialEq, Hash)]
 pub enum LinkType {
     Github,
@@ -11,7 +13,7 @@ pub enum TemplateType {
         content: String,
     },
     Links {
-        links: std::collections::HashMap<LinkType, String>,
+        links: HashMap<LinkType, String>,
     },
     Navbar {
         paths: Vec<std::path::PathBuf>,
@@ -23,6 +25,9 @@ pub enum TemplateType {
         url: String,
         copy_asset: bool,
         size: Option<u32>,
+    },
+    Name {
+        name: String,
     },
 }
 
@@ -39,13 +44,13 @@ impl TemplateType {
         }
         return None;
     }
-    pub fn get_links(&self) -> Option<&std::collections::HashMap<LinkType, String>> {
+    pub fn get_links(&self) -> Option<&HashMap<LinkType, String>> {
         if let TemplateType::Links { links } = self {
             return Some(links);
         }
         return None;
     }
-    pub fn get_navbar(&self) -> Option<&Vec<std::path::PathBuf>> {
+    pub fn get_navbar(&self) -> Option<&Vec<PathBuf>> {
         if let TemplateType::Navbar { paths } = self {
             return Some(paths);
         }
@@ -68,9 +73,20 @@ impl TemplateType {
         }
         return None;
     }
+    pub fn get_name(&self) -> Option<&str> {
+        if let TemplateType::Name { name } = self {
+            return Some(name);
+        }
+        None
+    }
+}
+
+pub struct CMSPage {
+    pub templates: Vec<TemplateType>,
 }
 
 pub struct CMSSite {
     pub original_content: String,
     pub templates: Vec<TemplateType>,
+    pub pages: HashMap<String, CMSPage>,
 }

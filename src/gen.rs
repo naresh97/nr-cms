@@ -1,4 +1,4 @@
-use crate::cms_types::{CMSSite, LinkType};
+use crate::cms_types::{CMSSite, LinkType, TemplateType};
 use crate::{assets, run_args};
 
 fn gen_title(cms_site: &CMSSite) -> &str {
@@ -38,9 +38,8 @@ fn gen_navbar(cms_site: &CMSSite) -> String {
     }
 }
 
-fn gen_paragraphs(cms_site: &CMSSite) -> String {
-    let paragraphs = cms_site
-        .templates
+fn gen_paragraphs(templates: &Vec<TemplateType>) -> String {
+    let paragraphs = templates
         .iter()
         .filter_map(|x| x.get_paragraph())
         .collect::<Vec<_>>();
@@ -51,9 +50,8 @@ fn gen_paragraphs(cms_site: &CMSSite) -> String {
     paragraphs.join("\n")
 }
 
-fn gen_links(cms_site: &CMSSite) -> String {
-    let links = cms_site
-        .templates
+fn gen_links(templates: &Vec<TemplateType>) -> String {
+    let links = templates
         .iter()
         .filter_map(|x| x.get_links())
         .collect::<Vec<_>>();
@@ -90,12 +88,8 @@ fn gen_nr_cms_info(cms_site: &CMSSite) -> String {
     }
 }
 
-fn gen_image(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
-    let image = cms_site
-        .templates
-        .iter()
-        .filter_map(|x| x.get_image())
-        .next();
+fn gen_image(templates: &Vec<TemplateType>, run_args: &run_args::RunArgs) -> String {
+    let image = templates.iter().filter_map(|x| x.get_image()).next();
     if let Some(image) = image {
         if *image.1 {
             let result = match image.2 {
@@ -111,14 +105,35 @@ fn gen_image(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
     String::new()
 }
 
+fn gen_pages(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
+    let pages = &cms_site.pages;
+    let mut pages_string = String::new();
+    for (name, page) in pages {
+        let templates = &page.templates;
+        let paragraphs = gen_paragraphs(templates);
+        let links = gen_links(templates);
+        let image = gen_image(templates, run_args);
+
+        let page_string = format!(
+            r#"
+        <div id="page-{name}" class="page">
+        {image}
+        {paragraphs}
+        {links}
+        </div>
+        "#
+        );
+        pages_string.push_str(&page_string);
+    }
+    pages_string
+}
+
 pub fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
     let title = gen_title(cms_site);
     let navbar = gen_navbar(cms_site);
-    let paragraphs = gen_paragraphs(cms_site);
-    let links = gen_links(cms_site);
     let nr_cms_info = gen_nr_cms_info(cms_site);
     let style = assets::styles::SITE_STYLE;
-    let image = gen_image(cms_site, run_args);
+    let pages = gen_pages(cms_site, run_args);
     let site = format!(
         r#"
     <html>
@@ -128,10 +143,8 @@ pub fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> Str
     </head>
     <body>
     <h1>{title}</h1>
-    {image}
     {navbar}
-    {paragraphs}
-    {links}
+    {pages}
     {nr_cms_info}
     </body>
     </html>

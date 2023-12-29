@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use notify::{RecursiveMode, Watcher};
 
 use crate::cms_types::CMSSite;
@@ -10,11 +12,13 @@ fn load_cms_site(
 ) -> Result<CMSSite, std::io::Error> {
     println!("Loading CMS files");
     let contents = std::fs::read_to_string(file_path)?;
-    let mut cms_site = CMSSite {
+    let (templates, pages) = parsing::parse_templates(&contents, run_args);
+    let cms_site = CMSSite {
         original_content: contents,
-        templates: Vec::new(),
+        templates,
+        pages,
     };
-    parsing::parse_templates(&mut cms_site, run_args);
+
     return Ok(cms_site);
 }
 
