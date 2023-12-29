@@ -89,7 +89,7 @@ fn parse_name(content: Option<&str>) -> Option<TemplateType> {
 
 fn parse_page(content: Option<&str>, run_args: &run_args::RunArgs) -> Option<CMSPage> {
     let content = content?;
-    let (templates, pages) = parse_templates(content, run_args);
+    let (templates, _pages) = parse_templates(content, run_args);
     Some(CMSPage { templates })
 }
 
