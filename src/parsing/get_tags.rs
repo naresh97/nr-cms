@@ -12,22 +12,18 @@ pub fn get_tags(content: &str) -> Option<Vec<&str>> {
     for b in braces {
         let index = b.0;
         let braces = b.1;
-        match braces {
-            OPENING_BRACE => {
-                if scope_count == 0 {
-                    current_template.0 = index + 2;
-                }
-                scope_count += 1;
+        if braces == OPENING_BRACE {
+            if scope_count == 0 {
+                current_template.0 = index + 2;
             }
-            CLOSING_BRACE => {
-                scope_count -= 1;
-                if scope_count == 0 {
-                    current_template.1 = index;
-                    templates.push(current_template);
-                }
+            scope_count += 1;
+        } else {
+            scope_count -= 1;
+            if scope_count == 0 {
+                current_template.1 = index;
+                templates.push(current_template);
             }
-            _ => (),
-        };
+        }
     }
     if scope_count != 0 {
         log::debug!("{content}");
@@ -51,14 +47,11 @@ mod test {
     #[test]
     fn test_get_tags() {
         let test = "{{hello}} {{world}} {{outer {{inner}}}}";
-        let tags = get_tags(test);
-        assert!(tags.is_some());
-        if let Some(tags) = tags {
-            assert_eq!(tags.len(), 3);
-            assert_eq!(tags[0], "hello");
-            assert_eq!(tags[1], "world");
-            assert_eq!(tags[2], "outer {{inner}}");
-        }
+        let tags = get_tags(test).unwrap();
+        assert_eq!(tags.len(), 3);
+        assert_eq!(tags[0], "hello");
+        assert_eq!(tags[1], "world");
+        assert_eq!(tags[2], "outer {{inner}}");
 
         let test = "{{hello}} {{there";
         let tags = get_tags(test);
