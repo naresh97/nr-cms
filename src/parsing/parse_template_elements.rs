@@ -88,6 +88,6 @@ pub fn parse_name(content: Option<&str>) -> Option<TemplateType> {
 pub fn parse_nkr_cms_info() -> Option<TemplateType> {
     return Some(TemplateType::NRCMSInfo {
         text:
-            "This website is made with <a href=\"https://github.com/naresh97/nr-cms\">NR-CMS.</a>",
+            "This website was automatically generated with <a href=\"https://github.com/naresh97/nr-cms\">NR-CMS.</a>",
     });
 }
