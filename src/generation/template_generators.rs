@@ -83,3 +83,131 @@ pub fn gen_image(templates: &Vec<TemplateType>, run_args: &run_args::RunArgs) ->
         _ => String::new(),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashMap;
+
+    use super::*;
+    #[test]
+    fn test_gen_title() {
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Title {
+            title: String::from("test"),
+        });
+        assert_eq!(gen_title(&test), "test");
+    }
+
+    #[test]
+    fn test_gen_navbar() {
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Navbar {
+            paths: Vec::from([String::from("first"), String::from("second")]),
+        });
+        let navbar = gen_navbar(&test);
+        assert!(navbar.contains("first"));
+        assert!(navbar.contains("second"));
+    }
+
+    #[test]
+    fn test_gen_paragraph() {
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Paragraph {
+            content: String::from("first"),
+        });
+        test.push(TemplateType::Paragraph {
+            content: String::from("second"),
+        });
+        let paragraphs = gen_paragraphs(&test);
+        assert!(paragraphs.contains("first"));
+        assert!(paragraphs.contains("second"));
+    }
+
+    #[test]
+    fn test_gen_links() {
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Links {
+            links: HashMap::from([(LinkType::Github, "first".to_string())]),
+        });
+        let links = gen_links(&test);
+        assert!(links.contains("first"));
+    }
+
+    #[test]
+    fn test_gen_info() {
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::NRCMSInfo { text: "first" });
+        let info = gen_nr_cms_info(&test);
+        assert!(info.contains("first"));
+    }
+
+    #[test]
+    fn test_gen_image() {
+        let run_args = run_args::RunArgs {
+            generation_dir: "gen_gen_test/".to_string(),
+            source_dir: "sample/".to_string(),
+            max_log_level: None,
+        };
+
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Image {
+            url: "sample.jpg".to_string(),
+            copy_asset: true,
+            size: Some(200),
+        });
+        let image = gen_image(&test, &run_args);
+        assert!(image.contains("sample.jpg"));
+
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Image {
+            url: "sample.jpg".to_string(),
+            copy_asset: false,
+            size: Some(200),
+        });
+        let image = gen_image(&test, &run_args);
+        assert!(image.contains("sample.jpg"));
+
+        std::fs::remove_dir_all("gen_gen_test/").expect("");
+    }
+
+    #[test]
+    fn test_image_no_exist() {
+        let mut test = Vec::<TemplateType>::new();
+        let run_args = run_args::RunArgs {
+            generation_dir: Default::default(),
+            source_dir: Default::default(),
+            max_log_level: None,
+        };
+        test.push(TemplateType::Image {
+            url: "sample_no_exist.jpg".to_string(),
+            copy_asset: true,
+            size: Some(200),
+        });
+        let image = gen_image(&test, &run_args);
+        assert_eq!(image, String::new());
+
+        let mut test = Vec::<TemplateType>::new();
+        test.push(TemplateType::Image {
+            url: "sample_no_exist.jpg".to_string(),
+            copy_asset: true,
+            size: None,
+        });
+        let image = gen_image(&test, &run_args);
+        assert_eq!(image, String::new());
+    }
+    #[test]
+    fn test_no_templates() {
+        let test = Vec::<TemplateType>::new();
+        let run_args = run_args::RunArgs {
+            generation_dir: Default::default(),
+            source_dir: Default::default(),
+            max_log_level: Default::default(),
+        };
+        assert_eq!(gen_title(&test), String::new());
+        assert_eq!(gen_paragraphs(&test), String::new());
+        assert_eq!(gen_nr_cms_info(&test), String::new());
+        assert_eq!(gen_links(&test), String::new());
+        assert_eq!(gen_navbar(&test), String::new());
+        assert_eq!(gen_image(&test, &run_args), String::new());
+    }
+}
