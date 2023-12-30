@@ -25,3 +25,34 @@ pub fn gen_pages(pages: &HashMap<String, CMSPage>, run_args: &run_args::RunArgs)
     }
     pages_string
 }
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashMap;
+
+    use crate::{
+        run_args::RunArgs,
+        types::{cms_page::CMSPage, template_type::TemplateType},
+    };
+
+    use super::gen_pages;
+
+    #[test]
+    fn test_gen_pages() {
+        let pages = HashMap::from([(
+            "FirstPage".to_string(),
+            CMSPage {
+                templates: Vec::from([TemplateType::Name {
+                    name: "FirstPage".to_string(),
+                }]),
+            },
+        )]);
+        let run_args = RunArgs {
+            generation_dir: Default::default(),
+            source_dir: Default::default(),
+            max_log_level: Default::default(),
+        };
+        let gen = gen_pages(&pages, &run_args);
+        assert!(gen.contains("FirstPage"));
+    }
+}
