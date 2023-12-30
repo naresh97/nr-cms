@@ -1,5 +1,5 @@
 mod assets;
-mod gen;
+mod generation;
 mod img_handling;
 mod parsing;
 mod run_args;
