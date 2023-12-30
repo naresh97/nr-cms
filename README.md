@@ -1,6 +1,7 @@
 # NR-CMS
 
-![Build & Tests](https://github.com/naresh97/nr-cms/actions/workflows/rust.yml/badge.svg)
+![Build & Tests](https://github.com/naresh97/nr-cms/actions/workflows/rust.yml/badge.svg) ![Codecov](https://img.shields.io/codecov/c/github/naresh97/nr-cms)
+
 
 A lightweight CMS for my personal website
 
