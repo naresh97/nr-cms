@@ -91,3 +91,60 @@ pub fn parse_nkr_cms_info() -> Option<TemplateType> {
             "This website was automatically generated with <a href=\"https://github.com/naresh97/nr-cms\">NR-CMS.</a>",
     });
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_simple_parsing() {
+        const TEST: &str = "test";
+        assert_eq!(parse_name(Some(TEST)).unwrap().get_name().unwrap(), TEST);
+        assert_eq!(
+            parse_paragraph(Some(TEST))
+                .unwrap()
+                .get_paragraph()
+                .unwrap(),
+            TEST
+        );
+        assert_eq!(parse_title(Some(TEST)).unwrap().get_title().unwrap(), TEST);
+        assert!(parse_nkr_cms_info().unwrap().get_nr_cms_info().is_some());
+    }
+    #[test]
+    fn test_parse_links() {
+        const LINKS: &str = "Github:A,None:B";
+        let links = parse_links(Some(LINKS)).unwrap();
+        let links = links.get_links().unwrap();
+        assert!(links.contains_key(&LinkType::Github));
+        assert_eq!(links.get(&LinkType::Github).unwrap(), "A");
+        const LINKS_BROKEN: &str = "GithubA,NoneB";
+        let links = parse_links(Some(LINKS_BROKEN));
+        assert!(links.is_none());
+    }
+
+    #[test]
+    fn test_parse_navbar() {
+        const PAGES: &str = "a,b,c";
+        let pages = parse_navbar(Some(PAGES)).unwrap();
+        let pages = pages.get_navbar().unwrap();
+        assert_eq!(pages.len(), 3);
+    }
+
+    #[test]
+    fn test_parse_image() {
+        const IMG: &str = "sample.jpg";
+        let run_args = run_args::RunArgs {
+            generation_dir: String::from("gen/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        let image = parse_image(Some(IMG), &run_args).unwrap();
+        let image = image.get_image().unwrap();
+        assert!(image.1);
+        assert_eq!(image.0, IMG);
+        const IMG_SIZE: &str = "sample.jpg,10";
+        let image = parse_image(Some(IMG_SIZE), &run_args).unwrap();
+        let image = image.get_image().unwrap();
+        assert_eq!(image.2.unwrap(), 10);
+        assert!(!image.1);
+    }
+}
