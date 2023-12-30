@@ -69,3 +69,34 @@ pub fn parse_templates(
     }
     (result, pages)
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_parse_templates() {
+        const CONTENT: &str = r#"
+        {{Title|hi}}
+        {{Image|sample.jpg}}
+        {{Navbar|bla,bla}}
+        {{Links|Github:bla}}
+        {{NKR-CMS-INFO}}
+        {{Nonsense}}
+        {{Page|
+        {{Name|TestPage}}
+        {{Paragraph|hi}}
+        }}
+        "#;
+        let run_args = run_args::RunArgs {
+            generation_dir: String::from("gen/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        let (templates, pages) = parse_templates(CONTENT, &run_args);
+        assert_eq!(templates.len(), 5);
+        assert_eq!(pages.len(), 1);
+        let (templates, pages) = parse_templates("{{broken_content", &run_args);
+        assert_eq!(templates.len(), 0);
+        assert_eq!(pages.len(), 0);
+    }
+}
