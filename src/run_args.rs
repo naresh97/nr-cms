@@ -42,3 +42,51 @@ impl RunArgs {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::path::PathBuf;
+    #[test]
+    fn test_path_finding() {
+        let run_args = RunArgs {
+            generation_dir: String::from("gen/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        assert_eq!(run_args.in_source("test"), PathBuf::from("sample/test"));
+        assert_eq!(run_args.in_gen("test"), PathBuf::from("gen/test"));
+    }
+    #[test]
+    fn test_copy_img_resize() {
+        let run_args = RunArgs {
+            generation_dir: String::from("gen_testa/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        run_args.copy_asset_img("sample.jpg", 200).expect("");
+        assert!(PathBuf::from("gen_testa/sample.jpg").exists());
+        std::fs::remove_dir_all("gen_testa/").expect("");
+    }
+    #[test]
+    fn test_copy_asset() {
+        let run_args = RunArgs {
+            generation_dir: String::from("gen_testb/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        run_args.copy_asset("sample.jpg").expect("");
+        assert!(PathBuf::from("gen_testb/sample.jpg").exists());
+        std::fs::remove_dir_all("gen_testb/").expect("");
+    }
+    #[test]
+    fn test_clone() {
+        let run_args = RunArgs {
+            generation_dir: String::from("gen/"),
+            source_dir: String::from("sample/"),
+            max_log_level: None,
+        };
+        let clone = run_args.clone();
+        assert_eq!(run_args.generation_dir, clone.generation_dir);
+    }
+}

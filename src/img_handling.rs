@@ -36,6 +36,11 @@ pub fn resize_image(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let img = image::io::Reader::open(source)?.decode()?;
     let img = img.resize(size, size, FilterType::Nearest);
+    let parent = target.parent().ok_or(std::io::Error::new(
+        std::io::ErrorKind::NotFound,
+        "cannot find parent",
+    ))?;
+    std::fs::create_dir_all(parent)?;
     img.save(target)?;
     return Ok(());
 }
