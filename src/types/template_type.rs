@@ -77,3 +77,94 @@ impl TemplateType {
         None
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_get_title() {
+        let a = TemplateType::Title {
+            title: String::from("test"),
+        };
+        assert_eq!(a.get_title().unwrap(), "test");
+        let b = TemplateType::Name {
+            name: String::from("abc"),
+        };
+        assert!(b.get_title().is_none());
+    }
+
+    #[test]
+    fn test_get_paragraph() {
+        let a = TemplateType::Paragraph {
+            content: String::from("test"),
+        };
+        assert_eq!(a.get_paragraph().unwrap(), "test");
+        let b = TemplateType::Name {
+            name: String::from("abc"),
+        };
+        assert!(b.get_paragraph().is_none());
+    }
+
+    #[test]
+    fn test_get_links() {
+        let a = TemplateType::Links {
+            links: HashMap::from([(LinkType::Github, String::from("test"))]),
+        };
+        assert_eq!(
+            a.get_links().unwrap().get(&LinkType::Github).unwrap(),
+            "test"
+        );
+        let b = TemplateType::Name {
+            name: String::from("abc"),
+        };
+        assert!(b.get_links().is_none());
+    }
+
+    #[test]
+    fn test_get_nr_cms_info() {
+        let a = TemplateType::NRCMSInfo { text: "test" };
+        assert_eq!(a.get_nr_cms_info().unwrap(), "test");
+        let b = TemplateType::Name {
+            name: String::from("abc"),
+        };
+        assert!(b.get_nr_cms_info().is_none());
+    }
+
+    #[test]
+    fn test_get_image() {
+        let a = TemplateType::Image {
+            url: String::from("test"),
+            copy_asset: false,
+            size: Some(10),
+        };
+        assert_eq!(a.get_image().unwrap().0, "test");
+        let b = TemplateType::Name {
+            name: String::from("abc"),
+        };
+        assert!(b.get_image().is_none());
+    }
+
+    #[test]
+    fn test_get_name() {
+        let a = TemplateType::Name {
+            name: String::from("test"),
+        };
+        assert_eq!(a.get_name().unwrap(), "test");
+        let b = TemplateType::Title {
+            title: String::from("test"),
+        };
+        assert!(b.get_name().is_none());
+    }
+
+    #[test]
+    fn test_get_navbar() {
+        let a = TemplateType::Navbar {
+            paths: Vec::from([String::from("test")]),
+        };
+        assert_eq!(a.get_navbar().unwrap().get(0).unwrap(), "test");
+        let b = TemplateType::Title {
+            title: String::from("test"),
+        };
+        assert!(b.get_navbar().is_none());
+    }
+}
