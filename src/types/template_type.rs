@@ -78,6 +78,41 @@ impl TemplateType {
     }
 }
 
+pub trait TemplateTypeVector {
+    fn get_title(&self) -> Option<&String>;
+    fn get_navbar(&self) -> Option<&Vec<String>>;
+    fn get_paragraphs(&self) -> Vec<&String>;
+    fn get_links(&self) -> Option<&HashMap<LinkType, String>>;
+    fn get_nr_cms_info(&self) -> Option<&str>;
+    fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)>;
+}
+
+impl TemplateTypeVector for Vec<TemplateType> {
+    fn get_title(&self) -> Option<&String> {
+        self.iter().find_map(|x| x.get_title())
+    }
+
+    fn get_navbar(&self) -> Option<&Vec<String>> {
+        self.iter().find_map(|x| x.get_navbar())
+    }
+
+    fn get_paragraphs(&self) -> Vec<&String> {
+        self.iter().filter_map(|x| x.get_paragraph()).collect()
+    }
+
+    fn get_links(&self) -> Option<&HashMap<LinkType, String>> {
+        self.iter().find_map(|x| x.get_links())
+    }
+
+    fn get_nr_cms_info(&self) -> Option<&str> {
+        self.iter().find_map(|x| x.get_nr_cms_info())
+    }
+
+    fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)> {
+        self.iter().find_map(|x| x.get_image())
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
