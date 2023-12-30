@@ -47,6 +47,7 @@ mod tests {
     #[test]
     fn test_resize() {
         let sample_img_path = std::path::Path::new("sample/sample.jpg");
+        std::fs::create_dir_all("gen/").expect("");
         let target = std::path::Path::new("gen/sample.jpg");
         resize_image(sample_img_path, target, 100).expect("");
     }
