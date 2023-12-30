@@ -1,7 +1,7 @@
-use crate::types::cms_site::CMSSite;
-use crate::types::link_type::LinkType;
-use crate::types::template_type::TemplateType;
-use crate::{assets, run_args};
+use crate::{
+    assets, run_args,
+    types::{cms_site::CMSSite, link_type::LinkType, template_type::TemplateType},
+};
 
 fn gen_title(cms_site: &CMSSite) -> &str {
     let title = cms_site

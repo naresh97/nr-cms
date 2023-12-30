@@ -1,8 +1,6 @@
 use notify::{RecursiveMode, Watcher};
 
-use crate::gen::generate_website;
-use crate::types::cms_site::CMSSite;
-use crate::{parsing, run_args};
+use crate::{gen::generate_website, parsing, run_args, types::cms_site::CMSSite};
 
 fn load_cms_site(
     file_path: std::path::PathBuf,

@@ -1,9 +1,9 @@
 mod assets;
-mod types;
 mod gen;
 mod img_handling;
 mod parsing;
 mod run_args;
+mod types;
 mod watcher;
 
 fn init_logging(run_args: &run_args::RunArgs) {

@@ -3,12 +3,12 @@ mod parse_template_elements;
 
 use std::collections::HashMap;
 
-use crate::run_args;
-use crate::types::cms_page::CMSPage;
-use crate::types::template_type::TemplateType;
+use crate::{
+    run_args,
+    types::{cms_page::CMSPage, template_type::TemplateType},
+};
 
-use self::get_tags::get_tags;
-use self::parse_template_elements::*;
+use self::{get_tags::get_tags, parse_template_elements::*};
 
 enum TemplateOrPage {
     Template(TemplateType),
