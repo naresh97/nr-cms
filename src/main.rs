@@ -1,5 +1,5 @@
 mod assets;
-mod cms_types;
+mod types;
 mod gen;
 mod img_handling;
 mod parsing;

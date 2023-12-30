@@ -1,7 +1,7 @@
 use crate::{
-    cms_types::{LinkType, TemplateType},
     img_handling::{get_img_as_b64_url, get_img_b64_size},
     run_args,
+    types::{link_type::LinkType, template_type::TemplateType},
 };
 
 pub fn parse_title(content: Option<&str>) -> Option<TemplateType> {

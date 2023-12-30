@@ -1,9 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Eq, PartialEq, Hash)]
-pub enum LinkType {
-    Github,
-}
+use super::link_type::LinkType;
 
 pub enum TemplateType {
     Title {
@@ -79,14 +76,4 @@ impl TemplateType {
         }
         None
     }
-}
-
-pub struct CMSPage {
-    pub templates: Vec<TemplateType>,
-}
-
-pub struct CMSSite {
-    pub original_content: String,
-    pub templates: Vec<TemplateType>,
-    pub pages: HashMap<String, CMSPage>,
 }

@@ -1,7 +1,7 @@
 use notify::{RecursiveMode, Watcher};
 
-use crate::cms_types::CMSSite;
 use crate::gen::generate_website;
+use crate::types::cms_site::CMSSite;
 use crate::{parsing, run_args};
 
 fn load_cms_site(

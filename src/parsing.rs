@@ -3,10 +3,9 @@ mod parse_template_elements;
 
 use std::collections::HashMap;
 
-use crate::{
-    cms_types::{CMSPage, TemplateType},
-    run_args,
-};
+use crate::run_args;
+use crate::types::cms_page::CMSPage;
+use crate::types::template_type::TemplateType;
 
 use self::get_tags::get_tags;
 use self::parse_template_elements::*;
