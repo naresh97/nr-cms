@@ -1,26 +1,18 @@
 use crate::{
     assets, run_args,
-    types::{cms_site::CMSSite, link_type::LinkType, template_type::TemplateType},
+    types::{link_type::LinkType, template_type::TemplateType},
 };
 
-pub fn gen_title(cms_site: &CMSSite) -> &str {
-    let title = cms_site
-        .templates
-        .iter()
-        .filter_map(|x| x.get_title())
-        .next();
+pub fn gen_title(templates: &Vec<TemplateType>) -> &str {
+    let title = templates.iter().filter_map(|x| x.get_title()).next();
     match title {
         Some(title) => title,
         _ => "",
     }
 }
 
-pub fn gen_navbar(cms_site: &CMSSite) -> String {
-    let navbar = cms_site
-        .templates
-        .iter()
-        .filter_map(|x| x.get_navbar())
-        .next();
+pub fn gen_navbar(templates: &Vec<TemplateType>) -> String {
+    let navbar = templates.iter().filter_map(|x| x.get_navbar()).next();
     match navbar {
         Some(paths) => {
             let paths: Vec<String> = paths
@@ -69,12 +61,8 @@ pub fn gen_links(templates: &Vec<TemplateType>) -> String {
     return format!("<p>{links}</p>");
 }
 
-pub fn gen_nr_cms_info(cms_site: &CMSSite) -> String {
-    let info = cms_site
-        .templates
-        .iter()
-        .filter_map(|x| x.get_nr_cms_info())
-        .next();
+pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
+    let info = templates.iter().filter_map(|x| x.get_nr_cms_info()).next();
     match info {
         Some(info) => {
             let info = format!("<p>{}</p>", info);

@@ -6,12 +6,14 @@ use self::template_generators::*;
 use crate::{assets, run_args, types::cms_site::CMSSite};
 
 pub fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
-    let title = gen_title(cms_site);
-    let navbar = gen_navbar(cms_site);
-    let nr_cms_info = gen_nr_cms_info(cms_site);
+    let templates = &cms_site.templates;
+    let pages = &cms_site.pages;
+    let title = gen_title(templates);
+    let navbar = gen_navbar(templates);
+    let nr_cms_info = gen_nr_cms_info(templates);
     let style = assets::styles::SITE_STYLE;
     let script = assets::scripts::PAGE_LOGIC;
-    let pages = gen_pages(cms_site, run_args);
+    let pages = gen_pages(pages, run_args);
     let site = format!(
         r#"
     <html>
