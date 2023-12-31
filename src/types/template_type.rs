@@ -119,11 +119,11 @@ mod test {
     #[test]
     fn test_get_title() {
         let a = TemplateType::Title {
-            title: String::from("test"),
+            title: "test".to_string(),
         };
         assert_eq!(a.get_title().unwrap(), "test");
         let b = TemplateType::Name {
-            name: String::from("abc"),
+            name: "abc".to_string(),
         };
         assert!(b.get_title().is_none());
     }
@@ -131,11 +131,11 @@ mod test {
     #[test]
     fn test_get_paragraph() {
         let a = TemplateType::Paragraph {
-            content: String::from("test"),
+            content: "test".to_string(),
         };
         assert_eq!(a.get_paragraph().unwrap(), "test");
         let b = TemplateType::Name {
-            name: String::from("abc"),
+            name: "abc".to_string(),
         };
         assert!(b.get_paragraph().is_none());
     }
@@ -143,14 +143,14 @@ mod test {
     #[test]
     fn test_get_links() {
         let a = TemplateType::Links {
-            links: HashMap::from([(LinkType::Github, String::from("test"))]),
+            links: HashMap::from([(LinkType::Github, "test".to_string())]),
         };
         assert_eq!(
             a.get_links().unwrap().get(&LinkType::Github).unwrap(),
             "test"
         );
         let b = TemplateType::Name {
-            name: String::from("abc"),
+            name: "abc".to_string(),
         };
         assert!(b.get_links().is_none());
     }
@@ -160,7 +160,7 @@ mod test {
         let a = TemplateType::NRCMSInfo { text: "test" };
         assert_eq!(a.get_nr_cms_info().unwrap(), "test");
         let b = TemplateType::Name {
-            name: String::from("abc"),
+            name: "abc".to_string(),
         };
         assert!(b.get_nr_cms_info().is_none());
     }
@@ -168,13 +168,13 @@ mod test {
     #[test]
     fn test_get_image() {
         let a = TemplateType::Image {
-            url: String::from("test"),
+            url: "test".to_string(),
             copy_asset: false,
             size: Some(10),
         };
         assert_eq!(a.get_image().unwrap().0, "test");
         let b = TemplateType::Name {
-            name: String::from("abc"),
+            name: "abc".to_string(),
         };
         assert!(b.get_image().is_none());
     }
@@ -182,11 +182,11 @@ mod test {
     #[test]
     fn test_get_name() {
         let a = TemplateType::Name {
-            name: String::from("test"),
+            name: "test".to_string(),
         };
         assert_eq!(a.get_name().unwrap(), "test");
         let b = TemplateType::Title {
-            title: String::from("test"),
+            title: "test".to_string(),
         };
         assert!(b.get_name().is_none());
     }
@@ -194,11 +194,11 @@ mod test {
     #[test]
     fn test_get_navbar() {
         let a = TemplateType::Navbar {
-            paths: Vec::from([String::from("test")]),
+            paths: Vec::from(["test".to_string()]),
         };
         assert_eq!(a.get_navbar().unwrap().get(0).unwrap(), "test");
         let b = TemplateType::Title {
-            title: String::from("test"),
+            title: "test".to_string(),
         };
         assert!(b.get_navbar().is_none());
     }

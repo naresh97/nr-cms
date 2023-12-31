@@ -62,7 +62,7 @@ fn parse_templates(
                     .filter_map(|x| x.get_name())
                     .next();
                 if let Some(name) = name {
-                    pages.insert(String::from(name), cms_page);
+                    pages.insert(name.to_string(), cms_page);
                 }
             }
         }
@@ -99,8 +99,8 @@ mod test {
         }}
         "#;
         let run_args = run_args::RunArgs {
-            generation_dir: String::from("gen/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         let (templates, pages) = parse_templates(CONTENT, &run_args);

@@ -50,8 +50,8 @@ mod test {
     #[test]
     fn test_path_finding() {
         let run_args = RunArgs {
-            generation_dir: String::from("gen/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         assert_eq!(run_args.in_source("test"), PathBuf::from("sample/test"));
@@ -60,8 +60,8 @@ mod test {
     #[test]
     fn test_copy_img_resize() {
         let run_args = RunArgs {
-            generation_dir: String::from("gen_testa/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen_testa/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         run_args.copy_asset_img("sample.jpg", 200).expect("");
@@ -71,8 +71,8 @@ mod test {
     #[test]
     fn test_copy_asset() {
         let run_args = RunArgs {
-            generation_dir: String::from("gen_testb/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen_testb/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         run_args.copy_asset("sample.jpg").expect("");
@@ -82,8 +82,8 @@ mod test {
     #[test]
     fn test_clone() {
         let run_args = RunArgs {
-            generation_dir: String::from("gen/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         let clone = run_args.clone();

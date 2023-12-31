@@ -93,7 +93,7 @@ mod test {
     fn test_gen_title() {
         let mut test = Vec::<TemplateType>::new();
         test.push(TemplateType::Title {
-            title: String::from("test"),
+            title: "test".to_string(),
         });
         assert_eq!(gen_title(&test), "test");
     }
@@ -102,7 +102,7 @@ mod test {
     fn test_gen_navbar() {
         let mut test = Vec::<TemplateType>::new();
         test.push(TemplateType::Navbar {
-            paths: Vec::from([String::from("first"), String::from("second")]),
+            paths: Vec::from(["first".to_string(), "second".to_string()]),
         });
         let navbar = gen_navbar(&test);
         assert!(navbar.contains("first"));
@@ -113,10 +113,10 @@ mod test {
     fn test_gen_paragraph() {
         let mut test = Vec::<TemplateType>::new();
         test.push(TemplateType::Paragraph {
-            content: String::from("first"),
+            content: "first".to_string(),
         });
         test.push(TemplateType::Paragraph {
-            content: String::from("second"),
+            content: "second".to_string(),
         });
         let paragraphs = gen_paragraphs(&test);
         assert!(paragraphs.contains("first"));

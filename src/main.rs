@@ -16,9 +16,9 @@ fn init_logging(run_args: &run_args::RunArgs) {
 
 fn main() {
     let run_args = run_args::RunArgs {
-        generation_dir: String::from("./gen"),
-        source_dir: String::from("./sample"),
-        max_log_level: Some(String::from("debug")),
+        generation_dir: "./gen".to_string(),
+        source_dir: "./sample".to_string(),
+        max_log_level: Some("debug".to_string()),
     };
     init_logging(&run_args);
     log::info!("Starting NKR-CMS.");
@@ -41,9 +41,9 @@ mod test {
         let run_args = run_args::RunArgs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Some("trace".to_string()),
+            max_log_level: Some("off".to_string()),
         };
         init_logging(&run_args);
-        assert_eq!(log::max_level(), log::LevelFilter::Trace);
+        assert_eq!(log::max_level(), log::LevelFilter::Off);
     }
 }

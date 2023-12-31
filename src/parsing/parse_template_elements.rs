@@ -7,14 +7,14 @@ use crate::{
 pub fn parse_title(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
     Some(TemplateType::Title {
-        title: String::from(content),
+        title: content.to_string(),
     })
 }
 
 pub fn parse_paragraph(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
     Some(TemplateType::Paragraph {
-        content: String::from(content),
+        content: content.to_string(),
     })
 }
 
@@ -31,7 +31,7 @@ pub fn parse_links(content: Option<&str>) -> Option<TemplateType> {
                     _ => None,
                 };
                 if let Some(link_type) = link_type {
-                    let pair = (link_type, String::from(pair[1]));
+                    let pair = (link_type, pair[1].to_string());
                     return Some(pair);
                 }
                 return None;
@@ -50,7 +50,7 @@ pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
     let paths = content
         .split(",")
-        .map(|x| String::from(x))
+        .map(|x| x.to_string())
         .collect::<Vec<_>>();
     Some(TemplateType::Navbar { paths })
 }
@@ -58,7 +58,7 @@ pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
 pub fn parse_image(content: Option<&str>, run_args: &run_args::RunArgs) -> Option<TemplateType> {
     let content = content?;
     let args = content.split(",").collect::<Vec<_>>();
-    let mut url = String::from(*args.get(0)?);
+    let mut url = args.get(0)?.to_string();
     let size = args.get(1);
     let size = match size {
         Some(x) => str::parse::<u32>(*x).ok(),
@@ -81,7 +81,7 @@ pub fn parse_image(content: Option<&str>, run_args: &run_args::RunArgs) -> Optio
 
 pub fn parse_name(content: Option<&str>) -> Option<TemplateType> {
     Some(TemplateType::Name {
-        name: String::from(content?),
+        name: content?.to_string(),
     })
 }
 
@@ -133,8 +133,8 @@ mod test {
     fn test_parse_image() {
         const IMG: &str = "sample.jpg";
         let run_args = run_args::RunArgs {
-            generation_dir: String::from("gen/"),
-            source_dir: String::from("sample/"),
+            generation_dir: "gen/".to_string(),
+            source_dir: "sample/".to_string(),
             max_log_level: None,
         };
         let image = parse_image(Some(IMG), &run_args).unwrap();
