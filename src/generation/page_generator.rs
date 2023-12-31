@@ -4,13 +4,16 @@ use crate::{run_args, types::cms_page::CMSPage};
 
 use super::template_generators::*;
 
-pub fn gen_pages(pages: &HashMap<String, CMSPage>, run_args: &run_args::RunArgs) -> String {
+pub fn gen_pages(
+    pages: &HashMap<String, CMSPage>,
+    generation_dirs: &run_args::GenerationDirs,
+) -> String {
     let mut pages_string = String::new();
     for (name, page) in pages {
         let templates = &page.templates;
         let paragraphs = gen_paragraphs(templates);
         let links = gen_links(templates);
-        let image = gen_image(templates, run_args);
+        let image = gen_image(templates, generation_dirs);
 
         let page_string = format!(
             r#"
@@ -31,7 +34,7 @@ mod test {
     use std::collections::HashMap;
 
     use crate::{
-        run_args::RunArgs,
+        run_args::GenerationDirs,
         types::{cms_page::CMSPage, template_type::TemplateType},
     };
 
@@ -47,13 +50,11 @@ mod test {
                 }]),
             },
         )]);
-        let run_args = RunArgs {
+        let generation_dirs = GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
-        let gen = gen_pages(&pages, &run_args);
+        let gen = gen_pages(&pages, &generation_dirs);
         assert!(gen.contains("FirstPage"));
     }
 }

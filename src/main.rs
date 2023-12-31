@@ -27,11 +27,11 @@ fn main() {
     log::debug!("Max Log Level: {}", &run_args.max_log_level);
     if run_args.watch {
         log::info!("Running in watch mode.");
-        if let Err(e) = watcher::watch(run_args, None) {
+        if let Err(e) = watcher::watch(run_args.into(), None) {
             log::error!("Could not initialize watcher: {e}");
         }
     } else {
-        generate_website(&run_args);
+        generate_website(&run_args.into());
     }
 }
 

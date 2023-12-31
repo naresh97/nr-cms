@@ -66,13 +66,16 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
     }
 }
 
-pub fn gen_image(templates: &Vec<TemplateType>, run_args: &run_args::RunArgs) -> String {
+pub fn gen_image(
+    templates: &Vec<TemplateType>,
+    generation_dirs: &run_args::GenerationDirs,
+) -> String {
     match templates.get_image() {
         Some(image) => {
             if *image.1 {
                 let result = match image.2 {
-                    Some(x) => run_args.copy_asset_img(image.0, *x),
-                    _ => run_args.copy_asset(image.0),
+                    Some(x) => generation_dirs.copy_asset_img(image.0, *x),
+                    _ => generation_dirs.copy_asset(image.0),
                 };
                 if result.is_err() {
                     return String::new();
@@ -86,7 +89,7 @@ pub fn gen_image(templates: &Vec<TemplateType>, run_args: &run_args::RunArgs) ->
 
 #[cfg(test)]
 mod test {
-    use std::collections::HashMap;
+    use std::{collections::HashMap, path::PathBuf};
 
     use super::*;
     #[test]
@@ -143,11 +146,9 @@ mod test {
 
     #[test]
     fn test_gen_image() {
-        let run_args = run_args::RunArgs {
-            generation_dir: "gen_gen_test/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = run_args::GenerationDirs {
+            generation_dir: PathBuf::from("gen_gen_test/"),
+            source_dir: PathBuf::from("sample/"),
         };
 
         let mut test = Vec::<TemplateType>::new();
@@ -156,7 +157,7 @@ mod test {
             copy_asset: true,
             size: Some(200),
         });
-        let image = gen_image(&test, &run_args);
+        let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
         let mut test = Vec::<TemplateType>::new();
@@ -165,7 +166,7 @@ mod test {
             copy_asset: false,
             size: Some(200),
         });
-        let image = gen_image(&test, &run_args);
+        let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
         std::fs::remove_dir_all("gen_gen_test/").unwrap();
@@ -174,18 +175,16 @@ mod test {
     #[test]
     fn test_image_no_exist() {
         let mut test = Vec::<TemplateType>::new();
-        let run_args = run_args::RunArgs {
+        let generation_dirs = run_args::GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
         test.push(TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
             copy_asset: true,
             size: Some(200),
         });
-        let image = gen_image(&test, &run_args);
+        let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
 
         let mut test = Vec::<TemplateType>::new();
@@ -194,23 +193,21 @@ mod test {
             copy_asset: true,
             size: None,
         });
-        let image = gen_image(&test, &run_args);
+        let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
     }
     #[test]
     fn test_no_templates() {
         let test = Vec::<TemplateType>::new();
-        let run_args = run_args::RunArgs {
+        let generation_dirs = run_args::GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
         assert_eq!(gen_title(&test), String::new());
         assert_eq!(gen_paragraphs(&test), String::new());
         assert_eq!(gen_nr_cms_info(&test), String::new());
         assert_eq!(gen_links(&test), String::new());
         assert_eq!(gen_navbar(&test), String::new());
-        assert_eq!(gen_image(&test, &run_args), String::new());
+        assert_eq!(gen_image(&test, &generation_dirs), String::new());
     }
 }

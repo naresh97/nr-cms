@@ -55,7 +55,10 @@ pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
     Some(TemplateType::Navbar { paths })
 }
 
-pub fn parse_image(content: Option<&str>, run_args: &run_args::RunArgs) -> Option<TemplateType> {
+pub fn parse_image(
+    content: Option<&str>,
+    generation_dirs: &run_args::GenerationDirs,
+) -> Option<TemplateType> {
     let content = content?;
     let args = content.split(",").collect::<Vec<_>>();
     let mut url = args.get(0)?.to_string();
@@ -64,7 +67,7 @@ pub fn parse_image(content: Option<&str>, run_args: &run_args::RunArgs) -> Optio
         Some(x) => str::parse::<u32>(*x).ok(),
         _ => None,
     };
-    let source_url = run_args.in_source(&url);
+    let source_url = generation_dirs.in_source(&url);
     let b64_size = get_img_b64_size(&source_url.as_path(), size).ok()?;
     const MAXIMUM_B64_SIZE: usize = 1000;
     let mut copy_asset = true;
@@ -94,6 +97,8 @@ pub fn parse_nkr_cms_info() -> Option<TemplateType> {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use super::*;
     #[test]
     fn test_simple_parsing() {
@@ -132,18 +137,16 @@ mod test {
     #[test]
     fn test_parse_image() {
         const IMG: &str = "sample.jpg";
-        let run_args = run_args::RunArgs {
-            generation_dir: "gen/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = run_args::GenerationDirs {
+            generation_dir: PathBuf::from("gen/"),
+            source_dir: PathBuf::from("sample/"),
         };
-        let image = parse_image(Some(IMG), &run_args).unwrap();
+        let image = parse_image(Some(IMG), &generation_dirs).unwrap();
         let image = image.get_image().unwrap();
         assert!(image.1);
         assert_eq!(image.0, IMG);
         const IMG_SIZE: &str = "sample.jpg,10";
-        let image = parse_image(Some(IMG_SIZE), &run_args).unwrap();
+        let image = parse_image(Some(IMG_SIZE), &generation_dirs).unwrap();
         let image = image.get_image().unwrap();
         assert_eq!(image.2.unwrap(), 10);
         assert!(!image.1);

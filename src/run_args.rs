@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::Parser;
 
 use crate::img_handling;
@@ -14,7 +16,22 @@ pub struct RunArgs {
     pub watch: bool,
 }
 
-impl RunArgs {
+impl From<RunArgs> for GenerationDirs {
+    fn from(value: RunArgs) -> Self {
+        GenerationDirs {
+            source_dir: PathBuf::from(value.source_dir),
+            generation_dir: PathBuf::from(value.generation_dir),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct GenerationDirs {
+    pub source_dir: std::path::PathBuf,
+    pub generation_dir: std::path::PathBuf,
+}
+
+impl GenerationDirs {
     pub fn in_source(&self, path: &str) -> std::path::PathBuf {
         let mut pathbuf = std::path::PathBuf::new();
         pathbuf.push(&self.source_dir);
@@ -56,48 +73,43 @@ mod test {
     use std::path::PathBuf;
     #[test]
     fn test_path_finding() {
-        let run_args = RunArgs {
-            generation_dir: "gen/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = GenerationDirs {
+            generation_dir: PathBuf::from("gen/"),
+            source_dir: PathBuf::from("sample/"),
         };
-        assert_eq!(run_args.in_source("test"), PathBuf::from("sample/test"));
-        assert_eq!(run_args.in_gen("test"), PathBuf::from("gen/test"));
+        assert_eq!(
+            generation_dirs.in_source("test"),
+            PathBuf::from("sample/test")
+        );
+        assert_eq!(generation_dirs.in_gen("test"), PathBuf::from("gen/test"));
     }
     #[test]
     fn test_copy_img_resize() {
-        let run_args = RunArgs {
-            generation_dir: "gen_testa/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = GenerationDirs {
+            generation_dir: PathBuf::from("gen_testa/"),
+            source_dir: PathBuf::from("sample/"),
         };
-        run_args.copy_asset_img("sample.jpg", 200).unwrap();
+        generation_dirs.copy_asset_img("sample.jpg", 200).unwrap();
         assert!(PathBuf::from("gen_testa/sample.jpg").exists());
         std::fs::remove_dir_all("gen_testa/").unwrap();
     }
     #[test]
     fn test_copy_asset() {
-        let run_args = RunArgs {
-            generation_dir: "gen_testb/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = GenerationDirs {
+            generation_dir: PathBuf::from("gen_testb/"),
+            source_dir: PathBuf::from("sample/"),
         };
-        run_args.copy_asset("sample.jpg").unwrap();
+        generation_dirs.copy_asset("sample.jpg").unwrap();
         assert!(PathBuf::from("gen_testb/sample.jpg").exists());
         std::fs::remove_dir_all("gen_testb/").unwrap();
     }
     #[test]
     fn test_clone() {
-        let run_args = RunArgs {
-            generation_dir: "gen/".to_string(),
-            source_dir: "sample/".to_string(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
+        let generation_dirs = GenerationDirs {
+            generation_dir: PathBuf::from("gen/"),
+            source_dir: PathBuf::from("sample/"),
         };
-        let clone = run_args.clone();
-        assert_eq!(run_args.generation_dir, clone.generation_dir);
+        let clone = generation_dirs.clone();
+        assert_eq!(generation_dirs.generation_dir, clone.generation_dir);
     }
 }

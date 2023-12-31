@@ -2,12 +2,12 @@ use crate::{assets, parsing, run_args, types::cms_site::CMSSite};
 
 use super::{page_generator::*, template_generators::*};
 
-pub fn generate_website(run_args: &run_args::RunArgs) {
-    let index_file = parsing::parse_file(&run_args);
+pub fn generate_website(generation_dirs: &run_args::GenerationDirs) {
+    let index_file = parsing::parse_file(&generation_dirs);
     match index_file {
         Ok(index_file) => {
-            let html = generate_html(&index_file, &run_args);
-            write_file(run_args.in_gen("index.html"), &html).unwrap_or_else(|e| {
+            let html = generate_html(&index_file, &generation_dirs);
+            write_file(generation_dirs.in_gen("index.html"), &html).unwrap_or_else(|e| {
                 log::error!("Could not write HTML to file: {}", e.to_string());
             });
         }
@@ -28,7 +28,7 @@ fn write_file(file_path: std::path::PathBuf, html: &str) -> Result<(), std::io::
     return Ok(());
 }
 
-fn generate_html(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
+fn generate_html(cms_site: &CMSSite, generation_dirs: &run_args::GenerationDirs) -> String {
     let templates = &cms_site.templates;
     let pages = &cms_site.pages;
     let title = gen_title(templates);
@@ -36,7 +36,7 @@ fn generate_html(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
     let nr_cms_info = gen_nr_cms_info(templates);
     let style = assets::styles::SITE_STYLE;
     let script = assets::scripts::PAGE_LOGIC;
-    let pages = gen_pages(pages, run_args);
+    let pages = gen_pages(pages, generation_dirs);
     let site = format!(
         r#"
     <html>
@@ -62,7 +62,7 @@ mod test {
     use std::{collections::HashMap, path::Path};
 
     use crate::{
-        run_args::RunArgs,
+        run_args::GenerationDirs,
         types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
     };
 
@@ -70,11 +70,9 @@ mod test {
 
     #[test]
     fn test_generate_html() {
-        let run_args = RunArgs {
+        let generation_dirs = GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
         let cms_site = CMSSite {
             original_content: Default::default(),
@@ -83,7 +81,7 @@ mod test {
             }]),
             pages: HashMap::<String, CMSPage>::new(),
         };
-        let html = generate_html(&cms_site, &run_args);
+        let html = generate_html(&cms_site, &generation_dirs);
         assert!(html.contains("TestSite"));
     }
 

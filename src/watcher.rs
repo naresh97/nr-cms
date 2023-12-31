@@ -4,7 +4,7 @@ use notify::{RecursiveMode, Watcher};
 
 use crate::{generation::generate_website::generate_website, run_args};
 
-fn watch_event(event: notify::Event, run_args: run_args::RunArgs) {
+fn watch_event(event: notify::Event, generation_dirs: run_args::GenerationDirs) {
     let handled = match event.kind {
         notify::EventKind::Create(_) => (true, "create"),
         notify::EventKind::Modify(_) => (true, "modify"),
@@ -25,7 +25,7 @@ fn watch_event(event: notify::Event, run_args: run_args::RunArgs) {
         return;
     }
     log::info!("Filesystem change detected");
-    generate_website(&run_args);
+    generate_website(&generation_dirs);
 }
 
 fn watch_error(e: notify::Error) {
@@ -33,12 +33,12 @@ fn watch_error(e: notify::Error) {
 }
 
 pub fn watch(
-    run_args: run_args::RunArgs,
+    generation_dirs: run_args::GenerationDirs,
     cancellation_token: Option<Receiver<bool>>,
 ) -> Result<(), notify::Error> {
-    let source_dir = &run_args.source_dir.clone();
+    let source_dir = &generation_dirs.source_dir.clone();
     let mut watcher = notify::recommended_watcher(move |res| match res {
-        Ok(event) => watch_event(event, run_args.clone()),
+        Ok(event) => watch_event(event, generation_dirs.clone()),
         Err(e) => watch_error(e),
     })?;
     watcher.watch(std::path::Path::new(source_dir), RecursiveMode::Recursive)?;
@@ -58,16 +58,14 @@ pub fn watch(
 mod test {
     use std::time::Duration;
 
-    use crate::run_args::RunArgs;
+    use crate::run_args::GenerationDirs;
 
     use super::*;
     #[test]
     fn test_watch_methods() {
-        let run_args = RunArgs {
+        let generation_dirs = GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
 
         // Should not panic
@@ -77,7 +75,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            run_args.clone(),
+            generation_dirs.clone(),
         );
         watch_event(
             notify::Event {
@@ -87,7 +85,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            run_args.clone(),
+            generation_dirs.clone(),
         );
 
         // Should not panic
@@ -99,15 +97,13 @@ mod test {
 
     #[test]
     fn test_watch() {
-        let run_args = RunArgs {
+        let generation_dirs = GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: Default::default(),
-            watch: Default::default(),
         };
         let (tx, rx) = std::sync::mpsc::channel::<bool>();
         let handle = std::thread::spawn(move || {
-            watch(run_args, Some(rx)).unwrap();
+            watch(generation_dirs, Some(rx)).unwrap();
         });
         tx.send(false).unwrap();
         std::thread::sleep(Duration::from_millis(100));
