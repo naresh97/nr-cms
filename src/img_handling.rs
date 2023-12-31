@@ -52,23 +52,22 @@ mod tests {
     #[test]
     fn test_resize() {
         let sample_img_path = std::path::Path::new("sample/sample.jpg");
-        std::fs::create_dir_all("gen/").expect("");
+        std::fs::create_dir_all("gen/").unwrap();
         let target = std::path::Path::new("gen/sample.jpg");
-        resize_image(sample_img_path, target, 100).expect("");
+        resize_image(sample_img_path, target, 100).unwrap();
     }
 
     #[test]
     fn test_get_img_as_b64() {
         let sample_img_path: &std::path::Path = std::path::Path::new("sample/sample.jpg");
-        let b64 =
-            get_img_as_b64_url(sample_img_path, Some(10)).expect("Could not get image as b64");
+        let b64 = get_img_as_b64_url(sample_img_path, Some(10)).unwrap();
         assert_eq!(b64, "data:image/jpg;base64,/9j/4AAQSkZJRgABAgAAAQABAAD/wAARCAAKAAoDAREAAhEBAxEB/9sAQwAKBwcIBwYKCAgICwoKCw4YEA4NDQ4dFRYRGCMfJSQiHyIhJis3LyYpNCkhIjBBMTQ5Oz4+PiUuRElDPEg3PT47/9sAQwEKCwsODQ4cEBAcOygiKDs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCDTtZ1QaykkOoSx2P2pzBa+a0QYNJnjHyMDIzKzMCAAccjAm5aSKg8Wa843RxXrIeVLXVySR2yVcA/gAPQCgCVoYn1IM8aMySXG0lQSuHGMemO1IZBaajfJZwol7cKqxqABKwAGPrTA//Z");
     }
 
     #[test]
     fn test_get_img_b64_size() {
         let sample_img_path = std::path::Path::new("sample/sample.jpg");
-        let size = get_img_b64_size(sample_img_path, Some(10)).expect("Cannot get image size");
+        let size = get_img_b64_size(sample_img_path, Some(10)).unwrap();
         assert_eq!(size, 994);
     }
 }

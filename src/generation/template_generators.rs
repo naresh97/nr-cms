@@ -167,7 +167,7 @@ mod test {
         let image = gen_image(&test, &run_args);
         assert!(image.contains("sample.jpg"));
 
-        std::fs::remove_dir_all("gen_gen_test/").expect("");
+        std::fs::remove_dir_all("gen_gen_test/").unwrap();
     }
 
     #[test]

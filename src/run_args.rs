@@ -64,9 +64,9 @@ mod test {
             source_dir: "sample/".to_string(),
             max_log_level: None,
         };
-        run_args.copy_asset_img("sample.jpg", 200).expect("");
+        run_args.copy_asset_img("sample.jpg", 200).unwrap();
         assert!(PathBuf::from("gen_testa/sample.jpg").exists());
-        std::fs::remove_dir_all("gen_testa/").expect("");
+        std::fs::remove_dir_all("gen_testa/").unwrap();
     }
     #[test]
     fn test_copy_asset() {
@@ -75,9 +75,9 @@ mod test {
             source_dir: "sample/".to_string(),
             max_log_level: None,
         };
-        run_args.copy_asset("sample.jpg").expect("");
+        run_args.copy_asset("sample.jpg").unwrap();
         assert!(PathBuf::from("gen_testb/sample.jpg").exists());
-        std::fs::remove_dir_all("gen_testb/").expect("");
+        std::fs::remove_dir_all("gen_testb/").unwrap();
     }
     #[test]
     fn test_clone() {
