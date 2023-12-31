@@ -4,7 +4,7 @@ use clap::Parser;
 
 use crate::img_handling;
 
-#[derive(Clone, Parser)]
+#[derive(Parser)]
 #[command(author,version,about,long_about=None)]
 pub struct ProgramArgs {
     pub source_dir: String,
@@ -71,6 +71,18 @@ impl GenerationDirs {
 mod test {
     use super::*;
     use std::path::PathBuf;
+    #[test]
+    fn test_program_args_conversion() {
+        let program_args = ProgramArgs {
+            source_dir: "first/".to_string(),
+            generation_dir: "second/".to_string(),
+            max_log_level: Default::default(),
+            watch: Default::default(),
+        };
+        let generation_dirs: GenerationDirs = program_args.into();
+        assert_eq!("first/", generation_dirs.source_dir.to_str().unwrap());
+        assert_eq!("second/", generation_dirs.generation_dir.to_str().unwrap());
+    }
     #[test]
     fn test_path_finding() {
         let generation_dirs = GenerationDirs {
