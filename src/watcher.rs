@@ -67,6 +67,7 @@ mod test {
             generation_dir: Default::default(),
             source_dir: Default::default(),
             max_log_level: Default::default(),
+            watch: Default::default(),
         };
 
         // Should not panic
@@ -102,6 +103,7 @@ mod test {
             generation_dir: Default::default(),
             source_dir: Default::default(),
             max_log_level: Default::default(),
+            watch: Default::default(),
         };
         let (tx, rx) = std::sync::mpsc::channel::<bool>();
         let handle = std::thread::spawn(move || {

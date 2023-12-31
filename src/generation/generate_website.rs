@@ -74,6 +74,7 @@ mod test {
             generation_dir: Default::default(),
             source_dir: Default::default(),
             max_log_level: Default::default(),
+            watch: Default::default(),
         };
         let cms_site = CMSSite {
             original_content: Default::default(),

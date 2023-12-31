@@ -101,7 +101,8 @@ mod test {
         let run_args = run_args::RunArgs {
             generation_dir: "gen/".to_string(),
             source_dir: "sample/".to_string(),
-            max_log_level: None,
+            max_log_level: Default::default(),
+            watch: Default::default(),
         };
         let (templates, pages) = parse_templates(CONTENT, &run_args);
         assert_eq!(templates.len(), 5);

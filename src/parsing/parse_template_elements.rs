@@ -135,7 +135,8 @@ mod test {
         let run_args = run_args::RunArgs {
             generation_dir: "gen/".to_string(),
             source_dir: "sample/".to_string(),
-            max_log_level: None,
+            max_log_level: Default::default(),
+            watch: Default::default(),
         };
         let image = parse_image(Some(IMG), &run_args).unwrap();
         let image = image.get_image().unwrap();

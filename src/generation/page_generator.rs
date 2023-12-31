@@ -51,6 +51,7 @@ mod test {
             generation_dir: Default::default(),
             source_dir: Default::default(),
             max_log_level: Default::default(),
+            watch: Default::default(),
         };
         let gen = gen_pages(&pages, &run_args);
         assert!(gen.contains("FirstPage"));

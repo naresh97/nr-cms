@@ -146,7 +146,8 @@ mod test {
         let run_args = run_args::RunArgs {
             generation_dir: "gen_gen_test/".to_string(),
             source_dir: "sample/".to_string(),
-            max_log_level: None,
+            max_log_level: Default::default(),
+            watch: Default::default(),
         };
 
         let mut test = Vec::<TemplateType>::new();
@@ -176,7 +177,8 @@ mod test {
         let run_args = run_args::RunArgs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
-            max_log_level: None,
+            max_log_level: Default::default(),
+            watch: Default::default(),
         };
         test.push(TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
@@ -202,6 +204,7 @@ mod test {
             generation_dir: Default::default(),
             source_dir: Default::default(),
             max_log_level: Default::default(),
+            watch: Default::default(),
         };
         assert_eq!(gen_title(&test), String::new());
         assert_eq!(gen_paragraphs(&test), String::new());
