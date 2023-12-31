@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use crate::{
     run_args,
-    types::{cms_page::CMSPage, template_type::TemplateType},
+    types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
 };
 
 use self::{get_tags::get_tags, parse_template_elements::*};
@@ -43,7 +43,7 @@ fn parse_template(template_content: &str, run_args: &run_args::RunArgs) -> Optio
     }
 }
 
-pub fn parse_templates(
+fn parse_templates(
     content: &str,
     run_args: &run_args::RunArgs,
 ) -> (Vec<TemplateType>, HashMap<String, CMSPage>) {
@@ -68,6 +68,17 @@ pub fn parse_templates(
         }
     }
     (result, pages)
+}
+
+pub fn parse_file(run_args: &run_args::RunArgs) -> Result<CMSSite, std::io::Error> {
+    let file_path = &run_args.in_source("index.cms");
+    let contents = std::fs::read_to_string(file_path)?;
+    let (templates, pages) = parse_templates(&contents, run_args);
+    Ok(CMSSite {
+        original_content: contents,
+        templates,
+        pages,
+    })
 }
 
 #[cfg(test)]

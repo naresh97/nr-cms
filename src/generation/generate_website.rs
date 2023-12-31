@@ -2,54 +2,33 @@ use crate::{assets, parsing, run_args, types::cms_site::CMSSite};
 
 use super::{page_generator::*, template_generators::*};
 
-pub fn load_and_write_site(run_args: &run_args::RunArgs) {
-    let index_file = load_cms_site(run_args.in_source("index.cms"), &run_args);
+pub fn generate_website(run_args: &run_args::RunArgs) {
+    let index_file = parsing::parse_file(&run_args);
     match index_file {
         Ok(index_file) => {
-            let result = write_gen_site(run_args.in_gen("index.html"), &index_file, &run_args);
-            if let Err(e) = result {
-                log::error!("Could not generate site: {}", e.to_string());
-            }
+            let html = generate_html(&index_file, &run_args);
+            write_file(run_args.in_gen("index.html"), &html).unwrap_or_else(|e| {
+                log::error!("Could not write HTML to file: {}", e.to_string());
+            });
         }
         Err(e) => {
             log::error!("Could not load CMS site: {}", e.to_string());
         }
-    };
+    }
 }
 
-fn load_cms_site(
-    file_path: std::path::PathBuf,
-    run_args: &run_args::RunArgs,
-) -> Result<CMSSite, std::io::Error> {
-    println!("Loading CMS files");
-    let contents = std::fs::read_to_string(file_path)?;
-    let (templates, pages) = parsing::parse_templates(&contents, run_args);
-    let cms_site = CMSSite {
-        original_content: contents,
-        templates,
-        pages,
-    };
-
-    return Ok(cms_site);
-}
-
-fn write_gen_site(
-    file_path: std::path::PathBuf,
-    cms_site: &CMSSite,
-    run_args: &run_args::RunArgs,
-) -> Result<(), std::io::Error> {
+fn write_file(file_path: std::path::PathBuf, html: &str) -> Result<(), std::io::Error> {
     log::info!("Generating website");
-    let gen_file = generate_website(&cms_site, run_args);
     let parent = file_path.parent().ok_or(std::io::Error::new(
         std::io::ErrorKind::NotFound,
         "Could not get parent",
     ))?;
     std::fs::create_dir_all(parent)?;
-    std::fs::write(file_path, gen_file)?;
+    std::fs::write(file_path, html)?;
     return Ok(());
 }
 
-fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
+fn generate_html(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String {
     let templates = &cms_site.templates;
     let pages = &cms_site.pages;
     let title = gen_title(templates);
@@ -76,4 +55,42 @@ fn generate_website(cms_site: &CMSSite, run_args: &run_args::RunArgs) -> String 
     "#
     );
     return site;
+}
+
+#[cfg(test)]
+mod test {
+    use std::{collections::HashMap, path::Path};
+
+    use crate::{
+        run_args::RunArgs,
+        types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
+    };
+
+    use super::*;
+
+    #[test]
+    fn test_generate_html() {
+        let run_args = RunArgs {
+            generation_dir: Default::default(),
+            source_dir: Default::default(),
+            max_log_level: Default::default(),
+        };
+        let cms_site = CMSSite {
+            original_content: Default::default(),
+            templates: Vec::from([TemplateType::Title {
+                title: "TestSite".to_string(),
+            }]),
+            pages: HashMap::<String, CMSPage>::new(),
+        };
+        let html = generate_html(&cms_site, &run_args);
+        assert!(html.contains("TestSite"));
+    }
+
+    #[test]
+    fn test_write_to_file() {
+        let path = Path::new("./some/random/file");
+        write_file(path.to_path_buf(), "content").unwrap();
+        assert!(path.exists());
+        std::fs::remove_dir_all("./some").unwrap();
+    }
 }

@@ -2,7 +2,7 @@ use std::sync::mpsc::Receiver;
 
 use notify::{RecursiveMode, Watcher};
 
-use crate::{generation::generate_website::load_and_write_site, run_args};
+use crate::{generation::generate_website::generate_website, run_args};
 
 fn watch_event(event: notify::Event, run_args: run_args::RunArgs) {
     let handled = match event.kind {
@@ -25,7 +25,7 @@ fn watch_event(event: notify::Event, run_args: run_args::RunArgs) {
         return;
     }
     log::info!("Filesystem change detected");
-    load_and_write_site(&run_args);
+    generate_website(&run_args);
 }
 
 fn watch_error(e: notify::Error) {
