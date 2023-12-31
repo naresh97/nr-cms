@@ -1,6 +1,6 @@
 use crate::{
     img_handling::{get_img_as_b64_url, get_img_b64_size},
-    run_args,
+    args,
     types::{link_type::LinkType, template_type::TemplateType},
 };
 
@@ -57,7 +57,7 @@ pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
 
 pub fn parse_image(
     content: Option<&str>,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> Option<TemplateType> {
     let content = content?;
     let args = content.split(",").collect::<Vec<_>>();
@@ -137,7 +137,7 @@ mod test {
     #[test]
     fn test_parse_image() {
         const IMG: &str = "sample.jpg";
-        let generation_dirs = run_args::GenerationDirs {
+        let generation_dirs = args::GenerationDirs {
             generation_dir: PathBuf::from("gen/"),
             source_dir: PathBuf::from("sample/"),
         };

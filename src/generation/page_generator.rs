@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use crate::{run_args, types::cms_page::CMSPage};
+use crate::{args, types::cms_page::CMSPage};
 
 use super::template_generators::*;
 
 pub fn gen_pages(
     pages: &HashMap<String, CMSPage>,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> String {
     let mut pages_string = String::new();
     for (name, page) in pages {
@@ -34,7 +34,7 @@ mod test {
     use std::collections::HashMap;
 
     use crate::{
-        run_args::GenerationDirs,
+        args::GenerationDirs,
         types::{cms_page::CMSPage, template_type::TemplateType},
     };
 

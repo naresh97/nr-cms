@@ -6,7 +6,7 @@ use crate::img_handling;
 
 #[derive(Clone, Parser)]
 #[command(author,version,about,long_about=None)]
-pub struct RunArgs {
+pub struct ProgramArgs {
     pub source_dir: String,
     #[arg(default_value_t = String::from("gen/"))]
     pub generation_dir: String,
@@ -16,8 +16,8 @@ pub struct RunArgs {
     pub watch: bool,
 }
 
-impl From<RunArgs> for GenerationDirs {
-    fn from(value: RunArgs) -> Self {
+impl From<ProgramArgs> for GenerationDirs {
+    fn from(value: ProgramArgs) -> Self {
         GenerationDirs {
             source_dir: PathBuf::from(value.source_dir),
             generation_dir: PathBuf::from(value.generation_dir),

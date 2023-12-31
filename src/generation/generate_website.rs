@@ -1,8 +1,8 @@
-use crate::{assets, parsing, run_args, types::cms_site::CMSSite};
+use crate::{assets, parsing, args, types::cms_site::CMSSite};
 
 use super::{page_generator::*, template_generators::*};
 
-pub fn generate_website(generation_dirs: &run_args::GenerationDirs) {
+pub fn generate_website(generation_dirs: &args::GenerationDirs) {
     let index_file = parsing::parse_file(&generation_dirs);
     match index_file {
         Ok(index_file) => {
@@ -28,7 +28,7 @@ fn write_file(file_path: std::path::PathBuf, html: &str) -> Result<(), std::io::
     return Ok(());
 }
 
-fn generate_html(cms_site: &CMSSite, generation_dirs: &run_args::GenerationDirs) -> String {
+fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> String {
     let templates = &cms_site.templates;
     let pages = &cms_site.pages;
     let title = gen_title(templates);
@@ -62,7 +62,7 @@ mod test {
     use std::{collections::HashMap, path::Path};
 
     use crate::{
-        run_args::GenerationDirs,
+        args::GenerationDirs,
         types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
     };
 

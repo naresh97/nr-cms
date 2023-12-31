@@ -1,5 +1,5 @@
 use crate::{
-    assets, run_args,
+    assets, args,
     types::{
         link_type::LinkType,
         template_type::{TemplateType, TemplateTypeVector},
@@ -68,7 +68,7 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
 
 pub fn gen_image(
     templates: &Vec<TemplateType>,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> String {
     match templates.get_image() {
         Some(image) => {
@@ -146,7 +146,7 @@ mod test {
 
     #[test]
     fn test_gen_image() {
-        let generation_dirs = run_args::GenerationDirs {
+        let generation_dirs = args::GenerationDirs {
             generation_dir: PathBuf::from("gen_gen_test/"),
             source_dir: PathBuf::from("sample/"),
         };
@@ -175,7 +175,7 @@ mod test {
     #[test]
     fn test_image_no_exist() {
         let mut test = Vec::<TemplateType>::new();
-        let generation_dirs = run_args::GenerationDirs {
+        let generation_dirs = args::GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
         };
@@ -199,7 +199,7 @@ mod test {
     #[test]
     fn test_no_templates() {
         let test = Vec::<TemplateType>::new();
-        let generation_dirs = run_args::GenerationDirs {
+        let generation_dirs = args::GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
         };

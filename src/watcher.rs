@@ -2,9 +2,9 @@ use std::sync::mpsc::Receiver;
 
 use notify::{RecursiveMode, Watcher};
 
-use crate::{generation::generate_website::generate_website, run_args};
+use crate::{generation::generate_website::generate_website, args};
 
-fn watch_event(event: notify::Event, generation_dirs: run_args::GenerationDirs) {
+fn watch_event(event: notify::Event, generation_dirs: args::GenerationDirs) {
     let handled = match event.kind {
         notify::EventKind::Create(_) => (true, "create"),
         notify::EventKind::Modify(_) => (true, "modify"),
@@ -33,7 +33,7 @@ fn watch_error(e: notify::Error) {
 }
 
 pub fn watch(
-    generation_dirs: run_args::GenerationDirs,
+    generation_dirs: args::GenerationDirs,
     cancellation_token: Option<Receiver<bool>>,
 ) -> Result<(), notify::Error> {
     let source_dir = &generation_dirs.source_dir.clone();
@@ -58,7 +58,7 @@ pub fn watch(
 mod test {
     use std::time::Duration;
 
-    use crate::run_args::GenerationDirs;
+    use crate::args::GenerationDirs;
 
     use super::*;
     #[test]

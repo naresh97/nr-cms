@@ -4,7 +4,7 @@ mod parse_template_elements;
 use std::collections::HashMap;
 
 use crate::{
-    run_args,
+    args,
     types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
 };
 
@@ -17,7 +17,7 @@ enum TemplateOrPage {
 
 fn parse_page(
     content: Option<&str>,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> Option<CMSPage> {
     let content = content?;
     let (templates, _pages) = parse_templates(content, generation_dirs);
@@ -26,7 +26,7 @@ fn parse_page(
 
 fn parse_template(
     template_content: &str,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> Option<TemplateOrPage> {
     let template_separator = template_content.match_indices("|").next().map(|x| x.0);
     let (template_name, template_content) = match template_separator {
@@ -53,7 +53,7 @@ fn parse_template(
 
 fn parse_templates(
     content: &str,
-    generation_dirs: &run_args::GenerationDirs,
+    generation_dirs: &args::GenerationDirs,
 ) -> (Vec<TemplateType>, HashMap<String, CMSPage>) {
     let mut result: Vec<TemplateType> = Vec::new();
     let mut pages: HashMap<String, CMSPage> = HashMap::new();
@@ -78,7 +78,7 @@ fn parse_templates(
     (result, pages)
 }
 
-pub fn parse_file(generation_dirs: &run_args::GenerationDirs) -> Result<CMSSite, std::io::Error> {
+pub fn parse_file(generation_dirs: &args::GenerationDirs) -> Result<CMSSite, std::io::Error> {
     let file_path = &generation_dirs.in_source("index.cms");
     let contents = std::fs::read_to_string(file_path)?;
     let (templates, pages) = parse_templates(&contents, generation_dirs);
@@ -108,7 +108,7 @@ mod test {
         {{Paragraph|hi}}
         }}
         "#;
-        let generation_dirs = run_args::GenerationDirs {
+        let generation_dirs = args::GenerationDirs {
             generation_dir: PathBuf::from("gen/"),
             source_dir: PathBuf::from("sample/"),
         };
