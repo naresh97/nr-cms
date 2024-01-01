@@ -57,7 +57,7 @@ impl GenerationDirs {
         ))?;
         std::fs::create_dir_all(target_parent)?;
         std::fs::copy(source, target)?;
-        return Ok(());
+        Ok(())
     }
     pub fn copy_asset_img(&self, path: &str, size: u32) -> Result<(), Box<dyn std::error::Error>> {
         let target = self.in_gen(path);

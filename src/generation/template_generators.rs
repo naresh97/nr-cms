@@ -61,7 +61,7 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
     match templates.get_nr_cms_info() {
         Some(info) => {
             let info = format!("<p>{}</p>", info);
-            return info;
+            info
         }
         _ => String::new(),
     }
@@ -79,7 +79,7 @@ pub fn gen_image(templates: &Vec<TemplateType>, generation_dirs: &args::Generati
                     return String::new();
                 }
             }
-            return format!(r#"<p><img src="{}"/></p>"#, image.0);
+            format!(r#"<p><img src="{}"/></p>"#, image.0)
         }
         _ => String::new(),
     }
@@ -114,7 +114,7 @@ pub fn gen_blog(templates: &Vec<TemplateType>) -> String {
         posts.reverse();
         let posts = posts
             .iter()
-            .filter_map(|x| gen_blog_post(x))
+            .filter_map(gen_blog_post)
             .collect::<Vec<_>>()
             .join("\n<hr>\n");
         return format!(
@@ -183,19 +183,17 @@ mod test {
     }
     #[test]
     fn test_gen_title() {
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Title {
+        let test = vec![TemplateType::Title {
             title: "test".to_string(),
-        });
+        }];
         assert_eq!(gen_title(&test), "test");
     }
 
     #[test]
     fn test_gen_navbar() {
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Navbar {
+        let test = vec![TemplateType::Navbar {
             paths: Vec::from(["first".to_string(), "second".to_string()]),
-        });
+        }];
         let navbar = gen_navbar(&test);
         assert!(navbar.contains("first"));
         assert!(navbar.contains("second"));
@@ -203,13 +201,14 @@ mod test {
 
     #[test]
     fn test_gen_paragraph() {
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Paragraph {
-            content: "first".to_string(),
-        });
-        test.push(TemplateType::Paragraph {
-            content: "second".to_string(),
-        });
+        let test = vec![
+            TemplateType::Paragraph {
+                content: "first".to_string(),
+            },
+            TemplateType::Paragraph {
+                content: "second".to_string(),
+            },
+        ];
         let paragraphs = gen_paragraphs(&test);
         assert!(paragraphs.contains("first"));
         assert!(paragraphs.contains("second"));
@@ -217,18 +216,16 @@ mod test {
 
     #[test]
     fn test_gen_links() {
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Links {
+        let test = vec![TemplateType::Links {
             links: HashMap::from([(LinkType::Github, "first".to_string())]),
-        });
+        }];
         let links = gen_links(&test);
         assert!(links.contains("first"));
     }
 
     #[test]
     fn test_gen_info() {
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::NRCMSInfo { text: "first" });
+        let test = vec![TemplateType::NRCMSInfo { text: "first" }];
         let info = gen_nr_cms_info(&test);
         assert!(info.contains("first"));
     }
@@ -240,21 +237,19 @@ mod test {
             source_dir: PathBuf::from("sample/"),
         };
 
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Image {
+        let test = vec![TemplateType::Image {
             url: "sample.jpg".to_string(),
             copy_asset: true,
             size: Some(200),
-        });
+        }];
         let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Image {
+        let test = vec![TemplateType::Image {
             url: "sample.jpg".to_string(),
             copy_asset: false,
             size: Some(200),
-        });
+        }];
         let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
@@ -276,12 +271,11 @@ mod test {
         let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
 
-        let mut test = Vec::<TemplateType>::new();
-        test.push(TemplateType::Image {
+        let test = vec![TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
             copy_asset: true,
             size: None,
-        });
+        }];
         let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
     }

@@ -3,10 +3,10 @@ use crate::{args, assets, parsing, types::cms_site::CMSSite};
 use super::{page_generator::*, template_generators::*};
 
 pub fn generate_website(generation_dirs: &args::GenerationDirs) {
-    let index_file = parsing::parse_file(&generation_dirs);
+    let index_file = parsing::parse_file(generation_dirs);
     match index_file {
         Ok(index_file) => {
-            let html = generate_html(&index_file, &generation_dirs);
+            let html = generate_html(&index_file, generation_dirs);
             write_file(generation_dirs.in_gen("index.html"), &html).unwrap_or_else(|e| {
                 log::error!("Could not write HTML to file: {}", e.to_string());
             });
@@ -25,7 +25,7 @@ fn write_file(file_path: std::path::PathBuf, html: &str) -> Result<(), std::io::
     ))?;
     std::fs::create_dir_all(parent)?;
     std::fs::write(file_path, html)?;
-    return Ok(());
+    Ok(())
 }
 
 fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> String {
@@ -54,7 +54,7 @@ fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> 
     </html>
     "#
     );
-    return site;
+    site
 }
 
 #[cfg(test)]

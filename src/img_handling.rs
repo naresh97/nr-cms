@@ -26,7 +26,7 @@ pub fn get_img_as_b64_url(
     )?;
     let b64 = general_purpose::STANDARD.encode(&buf);
     let b64 = format!("data:image/jpg;base64,{b64}");
-    return Ok(b64);
+    Ok(b64)
 }
 
 pub fn resize_image(
@@ -42,7 +42,7 @@ pub fn resize_image(
     ))?;
     std::fs::create_dir_all(parent)?;
     img.save(target)?;
-    return Ok(());
+    Ok(())
 }
 
 #[cfg(test)]

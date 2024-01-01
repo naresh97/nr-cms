@@ -1,4 +1,4 @@
-pub const PAGE_LOGIC: &'static str = r##"
+pub const PAGE_LOGIC: &str = r#"
 <script type="text/javascript">
 addEventListener("load", (event)=>{
     const current_page = new URLSearchParams(window.location.search).get("page") ?? "home";
@@ -13,4 +13,4 @@ addEventListener("load", (event)=>{
     }
 });
 </script>
-"##;
+"#;

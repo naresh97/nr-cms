@@ -27,7 +27,7 @@ fn get_files_in_dir(path: &Path) -> Option<Vec<PathBuf>> {
 
 fn parse_blog_file(path: &Path, generation_dirs: &args::GenerationDirs) -> Option<BlogPost> {
     let contents = std::fs::read_to_string(path).ok()?;
-    let (templates, _pages) = parse_templates(&contents, &generation_dirs);
+    let (templates, _pages) = parse_templates(&contents, generation_dirs);
     let post_date = templates.get_date()?;
 
     Some(BlogPost {
@@ -61,7 +61,7 @@ mod test {
     #[test]
     fn test_get_files_in_dir() {
         let files = get_files_in_dir(std::path::Path::new("sample/blog_files")).unwrap();
-        assert!(files.len() != 0);
+        assert!(!files.is_empty());
         assert!(files.contains(&std::path::PathBuf::from(
             "sample/blog_files/my_first_toy.cms".to_string()
         )));

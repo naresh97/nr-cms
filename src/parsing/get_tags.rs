@@ -33,10 +33,7 @@ pub fn get_tags(content: &str) -> Option<Vec<&str>> {
     Some(
         templates
             .iter()
-            .map(|x| {
-                let x = &content[x.0..x.1];
-                return x;
-            })
+            .map(|x| &content[x.0..x.1])
             .collect::<Vec<_>>(),
     )
 }

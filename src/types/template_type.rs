@@ -40,31 +40,31 @@ impl TemplateType {
         if let TemplateType::Title { title } = self {
             return Some(title);
         }
-        return None;
+        None
     }
     pub fn get_paragraph(&self) -> Option<&String> {
         if let TemplateType::Paragraph { content } = self {
             return Some(content);
         }
-        return None;
+        None
     }
     pub fn get_links(&self) -> Option<&HashMap<LinkType, String>> {
         if let TemplateType::Links { links } = self {
             return Some(links);
         }
-        return None;
+        None
     }
     pub fn get_navbar(&self) -> Option<&Vec<String>> {
         if let TemplateType::Navbar { paths } = self {
             return Some(paths);
         }
-        return None;
+        None
     }
     pub fn get_nr_cms_info(&self) -> Option<&str> {
         if let TemplateType::NRCMSInfo { text } = self {
             return Some(text);
         }
-        return None;
+        None
     }
     pub fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)> {
         if let TemplateType::Image {
@@ -75,7 +75,7 @@ impl TemplateType {
         {
             return Some((url, copy_asset, size));
         }
-        return None;
+        None
     }
     pub fn get_name(&self) -> Option<&str> {
         if let TemplateType::Name { name } = self {

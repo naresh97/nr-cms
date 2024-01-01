@@ -2,7 +2,7 @@ use std::sync::mpsc::Receiver;
 
 use notify::{RecursiveMode, Watcher};
 
-use crate::{generation::generate_website::generate_website, args};
+use crate::{args, generation::generate_website::generate_website};
 
 fn watch_event(event: notify::Event, generation_dirs: args::GenerationDirs) {
     let handled = match event.kind {
@@ -43,7 +43,7 @@ pub fn watch(
     })?;
     watcher.watch(std::path::Path::new(source_dir), RecursiveMode::Recursive)?;
     loop {
-        let cancellation_token = cancellation_token.as_ref().map(|x| x.recv().ok()).flatten();
+        let cancellation_token = cancellation_token.as_ref().and_then(|x| x.recv().ok());
         if let Some(cancellation_token) = cancellation_token {
             if cancellation_token {
                 break;

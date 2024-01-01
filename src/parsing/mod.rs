@@ -26,7 +26,7 @@ fn parse_template(
     template_content: &str,
     generation_dirs: &args::GenerationDirs,
 ) -> Option<ParseElements> {
-    let template_separator = template_content.match_indices("|").next().map(|x| x.0);
+    let template_separator = template_content.match_indices('|').next().map(|x| x.0);
     let (template_name, template_content) = match template_separator {
         Some(template_separator) => (
             template_content.get(0..template_separator)?,
@@ -35,18 +35,16 @@ fn parse_template(
         _ => (template_content, None),
     };
     match template_name {
-        "Navbar" => parse_navbar(template_content).map(|x| ParseElements::Template(x)),
-        "Title" => parse_title(template_content).map(|x| ParseElements::Template(x)),
-        "Paragraph" => parse_paragraph(template_content).map(|x| ParseElements::Template(x)),
-        "Links" => parse_links(template_content).map(|x| ParseElements::Template(x)),
-        "NKR-CMS-INFO" => parse_nkr_cms_info().map(|x| ParseElements::Template(x)),
-        "Image" => {
-            parse_image(template_content, generation_dirs).map(|x| ParseElements::Template(x))
-        }
-        "Name" => parse_name(template_content).map(|x| ParseElements::Template(x)),
-        "Page" => parse_page(template_content, generation_dirs).map(|x| ParseElements::Page(x)),
-        "Date" => parse_date(template_content).map(|x| ParseElements::Template(x)),
-        "Blog" => parse_blog(template_content, generation_dirs).map(|x| ParseElements::Template(x)),
+        "Navbar" => parse_navbar(template_content).map(ParseElements::Template),
+        "Title" => parse_title(template_content).map(ParseElements::Template),
+        "Paragraph" => parse_paragraph(template_content).map(ParseElements::Template),
+        "Links" => parse_links(template_content).map(ParseElements::Template),
+        "NKR-CMS-INFO" => parse_nkr_cms_info().map(ParseElements::Template),
+        "Image" => parse_image(template_content, generation_dirs).map(ParseElements::Template),
+        "Name" => parse_name(template_content).map(ParseElements::Template),
+        "Page" => parse_page(template_content, generation_dirs).map(ParseElements::Page),
+        "Date" => parse_date(template_content).map(ParseElements::Template),
+        "Blog" => parse_blog(template_content, generation_dirs).map(ParseElements::Template),
         _ => None,
     }
 }

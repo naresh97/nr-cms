@@ -1,4 +1,4 @@
-pub static SITE_STYLE: &str = r##"
+pub static SITE_STYLE: &str = r#"
 <style type="text/css">
 body{
     display: flex;
@@ -24,4 +24,4 @@ body{
     color: grey;
 }
 </style>
-"##;
+"#;

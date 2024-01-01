@@ -23,11 +23,11 @@ pub fn parse_paragraph(content: Option<&str>) -> Option<TemplateType> {
 
 pub fn parse_links(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
-    let link_pairs: Vec<&str> = content.split(",").collect();
+    let link_pairs: Vec<&str> = content.split(',').collect();
     let link_pairs: Vec<(LinkType, String)> = link_pairs
         .iter()
         .filter_map(|x| {
-            let pair: Vec<&str> = x.split(":").collect();
+            let pair: Vec<&str> = x.split(':').collect();
             if pair.len() == 2 {
                 let link_type = match pair[0] {
                     "Github" => Some(LinkType::Github),
@@ -39,20 +39,20 @@ pub fn parse_links(content: Option<&str>) -> Option<TemplateType> {
                 }
                 return None;
             }
-            return None;
+            None
         })
         .collect::<Vec<(LinkType, String)>>();
     let link_pairs: std::collections::HashMap<_, _> = link_pairs.into_iter().collect();
-    if link_pairs.len() > 0 {
+    if !link_pairs.is_empty() {
         return Some(TemplateType::Links { links: link_pairs });
     }
-    return None;
+    None
 }
 
 pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
     let content = content?;
     let paths = content
-        .split(",")
+        .split(',')
         .map(|x| x.to_string())
         .collect::<Vec<_>>();
     Some(TemplateType::Navbar { paths })
@@ -63,19 +63,19 @@ pub fn parse_image(
     generation_dirs: &args::GenerationDirs,
 ) -> Option<TemplateType> {
     let content = content?;
-    let args = content.split(",").collect::<Vec<_>>();
-    let mut url = args.get(0)?.to_string();
+    let args = content.split(',').collect::<Vec<_>>();
+    let mut url = args.first()?.to_string();
     let size = args.get(1);
     let size = match size {
-        Some(x) => str::parse::<u32>(*x).ok(),
+        Some(x) => str::parse::<u32>(x).ok(),
         _ => None,
     };
     let source_url = generation_dirs.in_source(&url);
-    let b64_size = get_img_b64_size(&source_url.as_path(), size).ok()?;
+    let b64_size = get_img_b64_size(source_url.as_path(), size).ok()?;
     const MAXIMUM_B64_SIZE: usize = 1000;
     let mut copy_asset = true;
     if b64_size <= MAXIMUM_B64_SIZE {
-        url = get_img_as_b64_url(&source_url.as_path(), size).ok()?;
+        url = get_img_as_b64_url(source_url.as_path(), size).ok()?;
         copy_asset = false;
     }
     Some(TemplateType::Image {
@@ -92,15 +92,15 @@ pub fn parse_name(content: Option<&str>) -> Option<TemplateType> {
 }
 
 pub fn parse_nkr_cms_info() -> Option<TemplateType> {
-    return Some(TemplateType::NRCMSInfo {
+    Some(TemplateType::NRCMSInfo {
         text:
             "This website was automatically generated with <a href=\"https://github.com/naresh97/nr-cms\">NR-CMS.</a>",
-    });
+    })
 }
 
 fn parse_date_time_from_str(content: &str, format: &str) -> Option<DateTime<Utc>> {
     let mut content = content.to_string();
-    if !content.contains(":") {
+    if !content.contains(':') {
         info!("Date provided: {content} does not contain time, appending 00:00:00");
         content += " 00:00:00";
     }
