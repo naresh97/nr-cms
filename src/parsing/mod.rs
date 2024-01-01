@@ -1,4 +1,5 @@
 mod get_tags;
+mod parse_blog;
 mod parse_template_elements;
 
 use std::collections::HashMap;
@@ -8,17 +9,14 @@ use crate::{
     types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
 };
 
-use self::{get_tags::get_tags, parse_template_elements::*};
+use self::{get_tags::get_tags, parse_blog::parse_blog, parse_template_elements::*};
 
-enum TemplateOrPage {
+enum ParseElements {
     Template(TemplateType),
     Page(CMSPage),
 }
 
-fn parse_page(
-    content: Option<&str>,
-    generation_dirs: &args::GenerationDirs,
-) -> Option<CMSPage> {
+fn parse_page(content: Option<&str>, generation_dirs: &args::GenerationDirs) -> Option<CMSPage> {
     let content = content?;
     let (templates, _pages) = parse_templates(content, generation_dirs);
     Some(CMSPage { templates })
@@ -27,7 +25,7 @@ fn parse_page(
 fn parse_template(
     template_content: &str,
     generation_dirs: &args::GenerationDirs,
-) -> Option<TemplateOrPage> {
+) -> Option<ParseElements> {
     let template_separator = template_content.match_indices("|").next().map(|x| x.0);
     let (template_name, template_content) = match template_separator {
         Some(template_separator) => (
@@ -37,16 +35,18 @@ fn parse_template(
         _ => (template_content, None),
     };
     match template_name {
-        "Navbar" => parse_navbar(template_content).map(|x| TemplateOrPage::Template(x)),
-        "Title" => parse_title(template_content).map(|x| TemplateOrPage::Template(x)),
-        "Paragraph" => parse_paragraph(template_content).map(|x| TemplateOrPage::Template(x)),
-        "Links" => parse_links(template_content).map(|x| TemplateOrPage::Template(x)),
-        "NKR-CMS-INFO" => parse_nkr_cms_info().map(|x| TemplateOrPage::Template(x)),
+        "Navbar" => parse_navbar(template_content).map(|x| ParseElements::Template(x)),
+        "Title" => parse_title(template_content).map(|x| ParseElements::Template(x)),
+        "Paragraph" => parse_paragraph(template_content).map(|x| ParseElements::Template(x)),
+        "Links" => parse_links(template_content).map(|x| ParseElements::Template(x)),
+        "NKR-CMS-INFO" => parse_nkr_cms_info().map(|x| ParseElements::Template(x)),
         "Image" => {
-            parse_image(template_content, generation_dirs).map(|x| TemplateOrPage::Template(x))
+            parse_image(template_content, generation_dirs).map(|x| ParseElements::Template(x))
         }
-        "Name" => parse_name(template_content).map(|x| TemplateOrPage::Template(x)),
-        "Page" => parse_page(template_content, generation_dirs).map(|x| TemplateOrPage::Page(x)),
+        "Name" => parse_name(template_content).map(|x| ParseElements::Template(x)),
+        "Page" => parse_page(template_content, generation_dirs).map(|x| ParseElements::Page(x)),
+        "Date" => parse_date(template_content).map(|x| ParseElements::Template(x)),
+        "Blog" => parse_blog(template_content, generation_dirs).map(|x| ParseElements::Template(x)),
         _ => None,
     }
 }
@@ -57,13 +57,14 @@ fn parse_templates(
 ) -> (Vec<TemplateType>, HashMap<String, CMSPage>) {
     let mut result: Vec<TemplateType> = Vec::new();
     let mut pages: HashMap<String, CMSPage> = HashMap::new();
+
     let tags = get_tags(content);
     if let Some(tags) = tags {
         for template_content in tags {
             let template = parse_template(template_content, generation_dirs);
-            if let Some(TemplateOrPage::Template(template)) = template {
+            if let Some(ParseElements::Template(template)) = template {
                 result.push(template);
-            } else if let Some(TemplateOrPage::Page(cms_page)) = template {
+            } else if let Some(ParseElements::Page(cms_page)) = template {
                 let name = cms_page
                     .templates
                     .iter()

@@ -19,6 +19,7 @@ some blog posts and whatever other stuff comes to mind!
 {{Paragraph|
 Welcome to my blog!
 }}
+{{Blog|blog_files/}}
 }}
 
 {{Page|
@@ -27,4 +28,3 @@ Welcome to my blog!
 This is the contact page!
 }}
 }}
-

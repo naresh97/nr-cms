@@ -1,4 +1,4 @@
-#[derive(Eq, PartialEq, Hash)]
+#[derive(Eq, PartialEq, Hash, Clone)]
 pub enum LinkType {
     Github,
 }

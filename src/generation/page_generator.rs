@@ -14,6 +14,7 @@ pub fn gen_pages(
         let paragraphs = gen_paragraphs(templates);
         let links = gen_links(templates);
         let image = gen_image(templates, generation_dirs);
+        let blog = gen_blog(templates);
 
         let page_string = format!(
             r#"
@@ -21,6 +22,7 @@ pub fn gen_pages(
         {image}
         {paragraphs}
         {links}
+        {blog}
         </div>
         "#
         );

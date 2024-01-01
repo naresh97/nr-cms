@@ -1,6 +1,9 @@
+use chrono::{DateTime, Local, TimeZone, Utc};
+use log::info;
+
 use crate::{
-    img_handling::{get_img_as_b64_url, get_img_b64_size},
     args,
+    img_handling::{get_img_as_b64_url, get_img_b64_size},
     types::{link_type::LinkType, template_type::TemplateType},
 };
 
@@ -95,9 +98,32 @@ pub fn parse_nkr_cms_info() -> Option<TemplateType> {
     });
 }
 
+fn parse_date_time_from_str(content: &str, format: &str) -> Option<DateTime<Utc>> {
+    let mut content = content.to_string();
+    if !content.contains(":") {
+        info!("Date provided: {content} does not contain time, appending 00:00:00");
+        content += " 00:00:00";
+    }
+    let date_time = chrono::NaiveDateTime::parse_from_str(&content, format).unwrap();
+    let date_time = Local.from_local_datetime(&date_time).single()?;
+    Some(date_time.into())
+}
+
+pub fn parse_date(content: Option<&str>) -> Option<TemplateType> {
+    let date = parse_date_time_from_str(content?, "%Y-%m-%d %H:%M:%S")?;
+    Some(TemplateType::Date { date })
+}
+
 #[cfg(test)]
 mod test {
     use std::path::PathBuf;
+
+    #[test]
+    fn test_parse_date() {
+        parse_date_time_from_str("2023-12-31", "%Y-%m-%d %H:%M:%S").unwrap();
+        parse_date_time_from_str("2023-12-31 01:02:03", "%Y-%m-%d %H:%M:%S").unwrap();
+        parse_date(Some("2023-12-31")).unwrap();
+    }
 
     use super::*;
     #[test]

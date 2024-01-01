@@ -16,5 +16,12 @@ body{
     flex-direction: column;
     align-items: center;
 }
+.blog-post h2{
+    margin-bottom: 0.25em;
+}
+.blog-post-date{
+    font-size: small;
+    color: grey;
+}
 </style>
 "##;

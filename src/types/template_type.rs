@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
-use super::link_type::LinkType;
+use chrono::{DateTime, Utc};
 
+use super::{cms_blog::CMSBlog, link_type::LinkType};
+
+#[derive(Clone)]
 pub enum TemplateType {
     Title {
         title: String,
@@ -26,6 +29,10 @@ pub enum TemplateType {
     Name {
         name: String,
     },
+    Date {
+        date: DateTime<Utc>,
+    },
+    Blog(CMSBlog),
 }
 
 impl TemplateType {
@@ -76,6 +83,18 @@ impl TemplateType {
         }
         None
     }
+    pub fn get_date(&self) -> Option<&DateTime<Utc>> {
+        if let TemplateType::Date { date } = self {
+            return Some(date);
+        }
+        None
+    }
+    pub fn get_blog(&self) -> Option<&CMSBlog> {
+        if let TemplateType::Blog(blog) = self {
+            return Some(blog);
+        }
+        None
+    }
 }
 
 pub trait TemplateTypeVector {
@@ -85,6 +104,8 @@ pub trait TemplateTypeVector {
     fn get_links(&self) -> Option<&HashMap<LinkType, String>>;
     fn get_nr_cms_info(&self) -> Option<&str>;
     fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)>;
+    fn get_date(&self) -> Option<&DateTime<Utc>>;
+    fn get_blog(&self) -> Option<&CMSBlog>;
 }
 
 impl TemplateTypeVector for Vec<TemplateType> {
@@ -110,6 +131,14 @@ impl TemplateTypeVector for Vec<TemplateType> {
 
     fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)> {
         self.iter().find_map(|x| x.get_image())
+    }
+
+    fn get_date(&self) -> Option<&DateTime<Utc>> {
+        self.iter().find_map(|x| x.get_date())
+    }
+
+    fn get_blog(&self) -> Option<&CMSBlog> {
+        self.iter().find_map(|x| x.get_blog())
     }
 }
 

@@ -1,3 +1,4 @@
+pub mod cms_blog;
 pub mod cms_page;
 pub mod cms_site;
 pub mod link_type;

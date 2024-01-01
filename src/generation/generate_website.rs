@@ -1,4 +1,4 @@
-use crate::{assets, parsing, args, types::cms_site::CMSSite};
+use crate::{args, assets, parsing, types::cms_site::CMSSite};
 
 use super::{page_generator::*, template_generators::*};
 

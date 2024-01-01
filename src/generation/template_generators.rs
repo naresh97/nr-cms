@@ -1,6 +1,7 @@
 use crate::{
-    assets, args,
+    args, assets,
     types::{
+        cms_blog::BlogPost,
         link_type::LinkType,
         template_type::{TemplateType, TemplateTypeVector},
     },
@@ -66,10 +67,7 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
     }
 }
 
-pub fn gen_image(
-    templates: &Vec<TemplateType>,
-    generation_dirs: &args::GenerationDirs,
-) -> String {
+pub fn gen_image(templates: &Vec<TemplateType>, generation_dirs: &args::GenerationDirs) -> String {
     match templates.get_image() {
         Some(image) => {
             if *image.1 {
@@ -87,11 +85,102 @@ pub fn gen_image(
     }
 }
 
+pub fn gen_blog_post(post: &BlogPost) -> Option<String> {
+    let templates = &post.templates;
+    let title = templates.get_title()?;
+    let date = templates.get_date()?;
+    let date = date.timestamp_millis();
+    let paragraphs = &templates.get_paragraphs();
+    let paragraphs = paragraphs
+        .iter()
+        .map(|x| format!("<p>{x}</p>"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    Some(format!(
+        r#"
+    <div class="blog-post">
+    <h2>{title}</h2>
+    <span class="blog-post-date">{date}</span>
+    {paragraphs}
+    </div>
+    "#
+    ))
+}
+
+pub fn gen_blog(templates: &Vec<TemplateType>) -> String {
+    if let Some(blog) = templates.get_blog() {
+        let mut posts = blog.posts.clone();
+        posts.sort_by(|a, b| a.post_date.cmp(&b.post_date));
+        posts.reverse();
+        let posts = posts
+            .iter()
+            .filter_map(|x| gen_blog_post(x))
+            .collect::<Vec<_>>()
+            .join("\n<hr>\n");
+        return format!(
+            r#"
+            <div class="blog">
+            {posts}
+            </div>
+            "#
+        );
+    }
+    String::new()
+}
+
 #[cfg(test)]
 mod test {
     use std::{collections::HashMap, path::PathBuf};
 
+    use crate::types::cms_blog::CMSBlog;
+
     use super::*;
+
+    #[test]
+    fn test_blog_post() {
+        let post = BlogPost {
+            post_date: Default::default(),
+            templates: Vec::from([
+                TemplateType::Title {
+                    title: "testtitle".to_string(),
+                },
+                TemplateType::Date {
+                    date: chrono::Utc::now(),
+                },
+                TemplateType::Paragraph {
+                    content: "testtest".to_string(),
+                },
+            ]),
+        };
+        let gen = gen_blog_post(&post).unwrap();
+        assert!(gen.contains("testtest"));
+        assert!(gen.contains("testtitle"));
+    }
+
+    #[test]
+    fn test_blog() {
+        let post = BlogPost {
+            post_date: Default::default(),
+            templates: Vec::from([
+                TemplateType::Title {
+                    title: "testtitle".to_string(),
+                },
+                TemplateType::Date {
+                    date: chrono::Utc::now(),
+                },
+                TemplateType::Paragraph {
+                    content: "testtest".to_string(),
+                },
+            ]),
+        };
+        let blog = CMSBlog {
+            posts: Vec::from([post]),
+        };
+        let templates = Vec::from([TemplateType::Blog(blog)]);
+        let gen = gen_blog(&templates);
+        assert!(gen.contains("testtest"));
+        assert!(gen.contains("testtitle"));
+    }
     #[test]
     fn test_gen_title() {
         let mut test = Vec::<TemplateType>::new();
