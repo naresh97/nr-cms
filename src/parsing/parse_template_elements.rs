@@ -2,9 +2,8 @@ use chrono::{DateTime, Local, TimeZone, Utc};
 use log::info;
 
 use crate::{
-    args,
     img_handling::{get_img_as_b64_url, get_img_b64_size},
-    types::{link_type::LinkType, template_type::TemplateType},
+    types::{generation_dirs::GenerationDirs, link_type::LinkType, template_type::TemplateType},
 };
 
 pub fn parse_title(content: Option<&str>) -> Option<TemplateType> {
@@ -60,7 +59,7 @@ pub fn parse_navbar(content: Option<&str>) -> Option<TemplateType> {
 
 pub fn parse_image(
     content: Option<&str>,
-    generation_dirs: &args::GenerationDirs,
+    generation_dirs: &impl GenerationDirs,
 ) -> Option<TemplateType> {
     let content = content?;
     let args = content.split(',').collect::<Vec<_>>();
@@ -123,7 +122,6 @@ pub fn parse_code(content: Option<&str>) -> Option<TemplateType> {
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
 
     #[test]
     fn test_parse_date() {
@@ -131,6 +129,8 @@ mod test {
         parse_date_time_from_str("2023-12-31 01:02:03", "%Y-%m-%d %H:%M:%S").unwrap();
         parse_date(Some("2023-12-31")).unwrap();
     }
+
+    use crate::types::generation_dirs::TempGenerationDirs;
 
     use super::*;
     #[test]
@@ -170,10 +170,7 @@ mod test {
     #[test]
     fn test_parse_image() {
         const IMG: &str = "sample.jpg";
-        let generation_dirs = args::GenerationDirs {
-            generation_dir: PathBuf::from("gen/"),
-            source_dir: PathBuf::from("sample/"),
-        };
+        let generation_dirs = TempGenerationDirs::default();
         let image = parse_image(Some(IMG), &generation_dirs).unwrap();
         let image = image.get_image().unwrap();
         assert!(image.1);

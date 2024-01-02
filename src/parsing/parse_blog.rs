@@ -1,10 +1,10 @@
 use std::path::{Path, PathBuf};
 
 use crate::{
-    args,
     parsing::parse_templates,
     types::{
         cms_blog::{BlogPost, CMSBlog},
+        generation_dirs::GenerationDirs,
         template_type::{TemplateType, TemplateTypeVector},
     },
 };
@@ -25,7 +25,7 @@ fn get_files_in_dir(path: &Path) -> Option<Vec<PathBuf>> {
     )
 }
 
-fn parse_blog_file(path: &Path, generation_dirs: &args::GenerationDirs) -> Option<BlogPost> {
+fn parse_blog_file(path: &Path, generation_dirs: &impl GenerationDirs) -> Option<BlogPost> {
     let contents = std::fs::read_to_string(path).ok()?;
     let (templates, _pages) = parse_templates(&contents, generation_dirs);
     let post_date = templates.get_date()?;
@@ -38,7 +38,7 @@ fn parse_blog_file(path: &Path, generation_dirs: &args::GenerationDirs) -> Optio
 
 pub fn parse_blog(
     content: Option<&str>,
-    generation_dirs: &args::GenerationDirs,
+    generation_dirs: &impl GenerationDirs,
 ) -> Option<TemplateType> {
     let blog_dir = generation_dirs.in_source(content?);
     if !blog_dir.exists() {
@@ -55,7 +55,8 @@ pub fn parse_blog(
 
 #[cfg(test)]
 mod test {
-    use crate::args::GenerationDirs;
+
+    use crate::types::generation_dirs::TempGenerationDirs;
 
     use super::*;
     #[test]
@@ -71,10 +72,7 @@ mod test {
     fn test_blog_file() {
         let path = PathBuf::from("sample/blog_files/my_first_toy.cms");
         assert!(path.exists());
-        let generation_dirs = GenerationDirs {
-            source_dir: PathBuf::from("sample/"),
-            generation_dir: PathBuf::from("gen/"),
-        };
+        let generation_dirs = TempGenerationDirs::default();
         let blog = parse_blog_file(&path, &generation_dirs).unwrap();
         assert!(blog.templates.get_title().unwrap().contains("toy"));
     }
@@ -82,10 +80,7 @@ mod test {
     #[test]
     fn test_parse_blog() {
         let content = Some("blog_files/");
-        let generation_dirs = GenerationDirs {
-            source_dir: PathBuf::from("sample/"),
-            generation_dir: PathBuf::from("gen/"),
-        };
+        let generation_dirs = TempGenerationDirs::default();
         let blog = parse_blog(content, &generation_dirs).unwrap();
         let blog = blog.get_blog().unwrap();
         assert!(!blog.posts.is_empty());

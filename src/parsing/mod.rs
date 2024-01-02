@@ -4,9 +4,9 @@ mod parse_template_elements;
 
 use std::collections::HashMap;
 
-use crate::{
-    args,
-    types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
+use crate::types::{
+    cms_page::CMSPage, cms_site::CMSSite, generation_dirs::GenerationDirs,
+    template_type::TemplateType,
 };
 
 use self::{get_tags::get_tags, parse_blog::parse_blog, parse_template_elements::*};
@@ -16,7 +16,7 @@ enum ParseElements {
     Page(CMSPage),
 }
 
-fn parse_page(content: Option<&str>, generation_dirs: &args::GenerationDirs) -> Option<CMSPage> {
+fn parse_page(content: Option<&str>, generation_dirs: &impl GenerationDirs) -> Option<CMSPage> {
     let content = content?;
     let (templates, _pages) = parse_templates(content, generation_dirs);
     Some(CMSPage { templates })
@@ -24,7 +24,7 @@ fn parse_page(content: Option<&str>, generation_dirs: &args::GenerationDirs) -> 
 
 fn parse_template(
     template_content: &str,
-    generation_dirs: &args::GenerationDirs,
+    generation_dirs: &impl GenerationDirs,
 ) -> Option<ParseElements> {
     let template_separator = template_content.match_indices('|').next().map(|x| x.0);
     let (template_name, template_content) = match template_separator {
@@ -52,7 +52,7 @@ fn parse_template(
 
 fn parse_templates(
     content: &str,
-    generation_dirs: &args::GenerationDirs,
+    generation_dirs: &impl GenerationDirs,
 ) -> (Vec<TemplateType>, HashMap<String, CMSPage>) {
     let mut result: Vec<TemplateType> = Vec::new();
     let mut pages: HashMap<String, CMSPage> = HashMap::new();
@@ -78,7 +78,7 @@ fn parse_templates(
     (result, pages)
 }
 
-pub fn parse_file(generation_dirs: &args::GenerationDirs) -> Result<CMSSite, std::io::Error> {
+pub fn parse_file(generation_dirs: &impl GenerationDirs) -> Result<CMSSite, std::io::Error> {
     let file_path = &generation_dirs.in_source("index.cms");
     let contents = std::fs::read_to_string(file_path)?;
     let (templates, pages) = parse_templates(&contents, generation_dirs);
@@ -91,7 +91,8 @@ pub fn parse_file(generation_dirs: &args::GenerationDirs) -> Result<CMSSite, std
 
 #[cfg(test)]
 mod test {
-    use std::path::PathBuf;
+
+    use crate::types::generation_dirs::TempGenerationDirs;
 
     use super::*;
     #[test]
@@ -108,10 +109,7 @@ mod test {
         {{Paragraph|hi}}
         }}
         "#;
-        let generation_dirs = args::GenerationDirs {
-            generation_dir: PathBuf::from("gen/"),
-            source_dir: PathBuf::from("sample/"),
-        };
+        let generation_dirs = TempGenerationDirs::default();
         let (templates, pages) = parse_templates(CONTENT, &generation_dirs);
         assert_eq!(templates.len(), 5);
         assert_eq!(pages.len(), 1);

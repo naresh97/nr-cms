@@ -1,7 +1,8 @@
 use crate::{
-    args, assets,
+    assets,
     types::{
         cms_blog::BlogPost,
+        generation_dirs::GenerationDirs,
         link_type::LinkType,
         template_type::{TemplateType, TemplateTypeVector},
     },
@@ -70,7 +71,7 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
     }
 }
 
-pub fn gen_image(template: &TemplateType, generation_dirs: &args::GenerationDirs) -> String {
+pub fn gen_image(template: &TemplateType, generation_dirs: &impl GenerationDirs) -> String {
     template
         .get_image()
         .map(|(url, copy_asset, size)| {
@@ -87,7 +88,7 @@ pub fn gen_image(template: &TemplateType, generation_dirs: &args::GenerationDirs
         .unwrap_or_default()
 }
 
-pub fn gen_blog_post(post: &BlogPost, generation_dirs: &args::GenerationDirs) -> Option<String> {
+pub fn gen_blog_post(post: &BlogPost, generation_dirs: &impl GenerationDirs) -> Option<String> {
     let templates = &post.templates;
     let title = templates.get_title()?;
     let date = templates.get_date()?;
@@ -104,7 +105,7 @@ pub fn gen_blog_post(post: &BlogPost, generation_dirs: &args::GenerationDirs) ->
     ))
 }
 
-pub fn gen_blog(templates: &Vec<TemplateType>, generation_dirs: &args::GenerationDirs) -> String {
+pub fn gen_blog(templates: &Vec<TemplateType>, generation_dirs: &impl GenerationDirs) -> String {
     if let Some(blog) = templates.get_blog() {
         let mut posts = blog.posts.clone();
         posts.sort_by(|a, b| a.post_date.cmp(&b.post_date));
@@ -127,7 +128,7 @@ pub fn gen_blog(templates: &Vec<TemplateType>, generation_dirs: &args::Generatio
 
 pub fn gen_order_preserved_elements(
     templates: &[TemplateType],
-    generation_dirs: &args::GenerationDirs,
+    generation_dirs: &impl GenerationDirs,
 ) -> String {
     templates
         .iter()
@@ -147,9 +148,9 @@ pub fn gen_order_preserved_elements(
 
 #[cfg(test)]
 mod test {
-    use std::{collections::HashMap, path::PathBuf};
+    use std::collections::HashMap;
 
-    use crate::types::cms_blog::CMSBlog;
+    use crate::types::{cms_blog::CMSBlog, generation_dirs::TempGenerationDirs};
 
     use super::*;
 
@@ -169,7 +170,7 @@ mod test {
                 },
             ]),
         };
-        let gen = gen_blog_post(&post, &Default::default()).unwrap();
+        let gen = gen_blog_post(&post, &TempGenerationDirs::default()).unwrap();
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -194,7 +195,7 @@ mod test {
             posts: Vec::from([post]),
         };
         let templates = Vec::from([TemplateType::Blog(blog)]);
-        let gen = gen_blog(&templates, &Default::default());
+        let gen = gen_blog(&templates, &TempGenerationDirs::default());
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -243,10 +244,7 @@ mod test {
 
     #[test]
     fn test_gen_image() {
-        let generation_dirs = args::GenerationDirs {
-            generation_dir: PathBuf::from("gen_gen_test/"),
-            source_dir: PathBuf::from("sample/"),
-        };
+        let generation_dirs = TempGenerationDirs::default();
 
         let test = TemplateType::Image {
             url: "sample.jpg".to_string(),
@@ -263,8 +261,6 @@ mod test {
         };
         let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
-
-        std::fs::remove_dir_all("gen_gen_test/").unwrap();
     }
 
     #[test]
@@ -274,7 +270,7 @@ mod test {
             copy_asset: true,
             size: Some(200),
         };
-        let image = gen_image(&test, &Default::default());
+        let image = gen_image(&test, &TempGenerationDirs::default());
         assert_eq!(image, String::new());
 
         let test = TemplateType::Image {
@@ -282,7 +278,7 @@ mod test {
             copy_asset: true,
             size: None,
         };
-        let image = gen_image(&test, &Default::default());
+        let image = gen_image(&test, &TempGenerationDirs::default());
         assert_eq!(image, String::new());
     }
     #[test]

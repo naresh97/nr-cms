@@ -1,8 +1,11 @@
-use crate::{args, assets, parsing, types::cms_site::CMSSite};
+use crate::{
+    assets, parsing,
+    types::{cms_site::CMSSite, generation_dirs::GenerationDirs},
+};
 
 use super::{page_generator::*, template_generators::*};
 
-pub fn generate_website(generation_dirs: &args::GenerationDirs) {
+pub fn generate_website(generation_dirs: &impl GenerationDirs) {
     let index_file = parsing::parse_file(generation_dirs);
     match index_file {
         Ok(index_file) => {
@@ -28,7 +31,7 @@ fn write_file(file_path: std::path::PathBuf, html: &str) -> Result<(), std::io::
     Ok(())
 }
 
-fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> String {
+fn generate_html(cms_site: &CMSSite, generation_dirs: &impl GenerationDirs) -> String {
     let templates = &cms_site.templates;
     let pages = &cms_site.pages;
     let title = gen_title(templates);
@@ -59,9 +62,12 @@ fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> 
 
 #[cfg(test)]
 mod test {
-    use std::{collections::HashMap, path::Path};
+    use std::collections::HashMap;
 
-    use crate::types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType};
+    use crate::types::{
+        cms_page::CMSPage, cms_site::CMSSite, generation_dirs::TempGenerationDirs,
+        template_type::TemplateType,
+    };
 
     use super::*;
 
@@ -74,15 +80,15 @@ mod test {
             }]),
             pages: HashMap::<String, CMSPage>::new(),
         };
-        let html = generate_html(&cms_site, &Default::default());
+        let html = generate_html(&cms_site, &TempGenerationDirs::default());
         assert!(html.contains("TestSite"));
     }
 
     #[test]
     fn test_write_to_file() {
-        let path = Path::new("./some/random/file");
+        let tmpfile = tempfile::tempdir().unwrap();
+        let path = tmpfile.path().join("test.file");
         write_file(path.to_path_buf(), "content").unwrap();
         assert!(path.exists());
-        std::fs::remove_dir_all("./some").unwrap();
     }
 }

@@ -2,9 +2,11 @@ use std::sync::mpsc::Receiver;
 
 use notify::{RecursiveMode, Watcher};
 
-use crate::{args, generation::generate_website::generate_website};
+use crate::{
+    generation::generate_website::generate_website, types::generation_dirs::GenerationDirs,
+};
 
-fn watch_event(event: notify::Event, generation_dirs: args::GenerationDirs) {
+fn watch_event(event: notify::Event, generation_dirs: impl GenerationDirs) {
     let handled = match event.kind {
         notify::EventKind::Create(_) => (true, "create"),
         notify::EventKind::Modify(_) => (true, "modify"),
@@ -33,15 +35,17 @@ fn watch_error(e: notify::Error) {
 }
 
 pub fn watch(
-    generation_dirs: args::GenerationDirs,
+    generation_dirs: impl GenerationDirs,
     cancellation_token: Option<Receiver<bool>>,
 ) -> Result<(), notify::Error> {
-    let source_dir = &generation_dirs.source_dir.clone();
+    let source_dir = &generation_dirs.get_source_dir();
     let mut watcher = notify::recommended_watcher(move |res| match res {
-        Ok(event) => watch_event(event, generation_dirs.clone()),
+        Ok(event) => {
+            watch_event(event, generation_dirs.clone());
+        }
         Err(e) => watch_error(e),
     })?;
-    watcher.watch(std::path::Path::new(source_dir), RecursiveMode::Recursive)?;
+    watcher.watch(source_dir, RecursiveMode::Recursive)?;
     loop {
         let cancellation_token = cancellation_token.as_ref().and_then(|x| x.recv().ok());
         if let Some(cancellation_token) = cancellation_token {
@@ -58,6 +62,8 @@ pub fn watch(
 mod test {
     use std::time::Duration;
 
+    use crate::types::generation_dirs::TempGenerationDirs;
+
     use super::*;
     #[test]
     fn test_watch_methods() {
@@ -68,7 +74,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            Default::default(),
+            TempGenerationDirs::default(),
         );
         watch_event(
             notify::Event {
@@ -78,7 +84,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            Default::default(),
+            TempGenerationDirs::default(),
         );
 
         // Should not panic
@@ -92,7 +98,7 @@ mod test {
     fn test_watch() {
         let (tx, rx) = std::sync::mpsc::channel::<bool>();
         let handle = std::thread::spawn(move || {
-            watch(Default::default(), Some(rx)).unwrap();
+            watch(TempGenerationDirs::default(), Some(rx)).unwrap();
         });
         tx.send(false).unwrap();
         std::thread::sleep(Duration::from_millis(100));
