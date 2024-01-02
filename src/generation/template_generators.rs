@@ -37,6 +37,15 @@ pub fn gen_paragraphs(templates: &Vec<TemplateType>) -> String {
     paragraphs.join("\n")
 }
 
+pub fn gen_codes(templates: &Vec<TemplateType>) -> String {
+    let codes = templates
+        .get_code()
+        .iter()
+        .map(|x| format!("<pre><code>\n{x}\n</code></pre>"))
+        .collect::<Vec<_>>();
+    codes.join("\n")
+}
+
 pub fn gen_links(templates: &Vec<TemplateType>) -> String {
     match templates.get_links() {
         Some(links) => {
@@ -96,12 +105,14 @@ pub fn gen_blog_post(post: &BlogPost) -> Option<String> {
         .map(|x| format!("<p>{x}</p>"))
         .collect::<Vec<_>>()
         .join("\n");
+    let codes = gen_codes(templates);
     Some(format!(
         r#"
     <div class="blog-post">
     <h2>{title}</h2>
     <span class="blog-post-date">{date}</span>
     {paragraphs}
+    {codes}
     </div>
     "#
     ))

@@ -114,6 +114,13 @@ pub fn parse_date(content: Option<&str>) -> Option<TemplateType> {
     Some(TemplateType::Date { date })
 }
 
+pub fn parse_code(content: Option<&str>) -> Option<TemplateType> {
+    let content = content?;
+    Some(TemplateType::Code {
+        code: content.to_string(),
+    })
+}
+
 #[cfg(test)]
 mod test {
     use std::path::PathBuf;

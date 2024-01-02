@@ -3,3 +3,12 @@
 {{Paragraph|
 Learning to code was really fun!
 }}
+{{Code|
+int main(){
+    auto sum = [](int a, int b){return a+b;};
+    return sum(0,0);
+}
+}}
+{{Paragraph|
+That's my first code!
+}}

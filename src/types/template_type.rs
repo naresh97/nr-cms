@@ -33,6 +33,9 @@ pub enum TemplateType {
         date: DateTime<Utc>,
     },
     Blog(CMSBlog),
+    Code {
+        code: String,
+    },
 }
 
 impl TemplateType {
@@ -95,6 +98,12 @@ impl TemplateType {
         }
         None
     }
+    pub fn get_code(&self) -> Option<&String> {
+        if let TemplateType::Code { code } = self {
+            return Some(code);
+        }
+        None
+    }
 }
 
 pub trait TemplateTypeVector {
@@ -106,6 +115,7 @@ pub trait TemplateTypeVector {
     fn get_image(&self) -> Option<(&String, &bool, &Option<u32>)>;
     fn get_date(&self) -> Option<&DateTime<Utc>>;
     fn get_blog(&self) -> Option<&CMSBlog>;
+    fn get_code(&self) -> Option<&String>;
 }
 
 impl TemplateTypeVector for Vec<TemplateType> {
@@ -139,6 +149,10 @@ impl TemplateTypeVector for Vec<TemplateType> {
 
     fn get_blog(&self) -> Option<&CMSBlog> {
         self.iter().find_map(|x| x.get_blog())
+    }
+
+    fn get_code(&self) -> Option<&String> {
+        self.iter().find_map(|x| x.get_code())
     }
 }
 

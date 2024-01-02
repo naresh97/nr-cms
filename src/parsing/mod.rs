@@ -45,6 +45,7 @@ fn parse_template(
         "Page" => parse_page(template_content, generation_dirs).map(ParseElements::Page),
         "Date" => parse_date(template_content).map(ParseElements::Template),
         "Blog" => parse_blog(template_content, generation_dirs).map(ParseElements::Template),
+        "Code" => parse_code(template_content).map(ParseElements::Template),
         _ => None,
     }
 }
