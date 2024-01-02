@@ -149,7 +149,7 @@ pub fn gen_order_preserved_elements(
 mod test {
     use std::{collections::HashMap, path::PathBuf};
 
-    use crate::{args::GenerationDirs, types::cms_blog::CMSBlog};
+    use crate::types::cms_blog::CMSBlog;
 
     use super::*;
 
@@ -169,11 +169,7 @@ mod test {
                 },
             ]),
         };
-        let generation_dirs = GenerationDirs {
-            source_dir: Default::default(),
-            generation_dir: Default::default(),
-        };
-        let gen = gen_blog_post(&post, &generation_dirs).unwrap();
+        let gen = gen_blog_post(&post, &Default::default()).unwrap();
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -198,11 +194,7 @@ mod test {
             posts: Vec::from([post]),
         };
         let templates = Vec::from([TemplateType::Blog(blog)]);
-        let generation_dirs = GenerationDirs {
-            source_dir: Default::default(),
-            generation_dir: Default::default(),
-        };
-        let gen = gen_blog(&templates, &generation_dirs);
+        let gen = gen_blog(&templates, &Default::default());
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -277,16 +269,12 @@ mod test {
 
     #[test]
     fn test_image_no_exist() {
-        let generation_dirs = args::GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
         let test = TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
             copy_asset: true,
             size: Some(200),
         };
-        let image = gen_image(&test, &generation_dirs);
+        let image = gen_image(&test, &Default::default());
         assert_eq!(image, String::new());
 
         let test = TemplateType::Image {
@@ -294,7 +282,7 @@ mod test {
             copy_asset: true,
             size: None,
         };
-        let image = gen_image(&test, &generation_dirs);
+        let image = gen_image(&test, &Default::default());
         assert_eq!(image, String::new());
     }
     #[test]

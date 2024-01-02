@@ -4,7 +4,7 @@ use clap::Parser;
 
 use crate::img_handling;
 
-#[derive(Parser)]
+#[derive(Parser, Default)]
 #[command(author,version,about,long_about=None)]
 pub struct ProgramArgs {
     pub source_dir: String,
@@ -25,7 +25,7 @@ impl From<ProgramArgs> for GenerationDirs {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct GenerationDirs {
     pub source_dir: std::path::PathBuf,
     pub generation_dir: std::path::PathBuf,

@@ -33,10 +33,7 @@ pub fn gen_pages(
 mod test {
     use std::collections::HashMap;
 
-    use crate::{
-        args::GenerationDirs,
-        types::{cms_page::CMSPage, template_type::TemplateType},
-    };
+    use crate::types::{cms_page::CMSPage, template_type::TemplateType};
 
     use super::gen_pages;
 
@@ -63,11 +60,7 @@ mod test {
                 ]),
             },
         )]);
-        let generation_dirs = GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
-        let gen = gen_pages(&pages, &generation_dirs);
+        let gen = gen_pages(&pages, &Default::default());
         assert!(gen.contains("FirstPage"));
         assert!(gen.contains("Second"));
         assert!(gen.contains("Third"));

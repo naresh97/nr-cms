@@ -58,16 +58,9 @@ pub fn watch(
 mod test {
     use std::time::Duration;
 
-    use crate::args::GenerationDirs;
-
     use super::*;
     #[test]
     fn test_watch_methods() {
-        let generation_dirs = GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
-
         // Should not panic
         watch_event(
             notify::Event {
@@ -75,7 +68,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            generation_dirs.clone(),
+            Default::default(),
         );
         watch_event(
             notify::Event {
@@ -85,7 +78,7 @@ mod test {
                 paths: Default::default(),
                 attrs: Default::default(),
             },
-            generation_dirs.clone(),
+            Default::default(),
         );
 
         // Should not panic
@@ -97,13 +90,9 @@ mod test {
 
     #[test]
     fn test_watch() {
-        let generation_dirs = GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
         let (tx, rx) = std::sync::mpsc::channel::<bool>();
         let handle = std::thread::spawn(move || {
-            watch(generation_dirs, Some(rx)).unwrap();
+            watch(Default::default(), Some(rx)).unwrap();
         });
         tx.send(false).unwrap();
         std::thread::sleep(Duration::from_millis(100));

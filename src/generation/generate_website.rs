@@ -61,19 +61,12 @@ fn generate_html(cms_site: &CMSSite, generation_dirs: &args::GenerationDirs) -> 
 mod test {
     use std::{collections::HashMap, path::Path};
 
-    use crate::{
-        args::GenerationDirs,
-        types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType},
-    };
+    use crate::types::{cms_page::CMSPage, cms_site::CMSSite, template_type::TemplateType};
 
     use super::*;
 
     #[test]
     fn test_generate_html() {
-        let generation_dirs = GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
         let cms_site = CMSSite {
             original_content: Default::default(),
             templates: Vec::from([TemplateType::Title {
@@ -81,7 +74,7 @@ mod test {
             }]),
             pages: HashMap::<String, CMSPage>::new(),
         };
-        let html = generate_html(&cms_site, &generation_dirs);
+        let html = generate_html(&cms_site, &Default::default());
         assert!(html.contains("TestSite"));
     }
 

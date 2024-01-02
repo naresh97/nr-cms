@@ -41,10 +41,8 @@ mod test {
     #[test]
     fn test_init_logging() {
         let run_args = args::ProgramArgs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
             max_log_level: "off".to_string(),
-            watch: Default::default(),
+            ..Default::default()
         };
         init_logging(&run_args);
         assert_eq!(log::max_level(), log::LevelFilter::Off);
