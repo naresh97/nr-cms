@@ -1,6 +1,19 @@
-/target
-/.idea
-/gen
-/.vscode
+# Rust
+target/
+
+# RustRover
+.idea/
+
+# Application-Specific
+gen/
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Code Coverage
 lcov.info
 *.profraw

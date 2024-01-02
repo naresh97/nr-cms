@@ -1,0 +1,4 @@
+{
+    "coverage-gutters.showLineCoverage": true,
+    "rust-analyzer.check.command": "clippy"
+}
