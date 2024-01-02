@@ -28,22 +28,16 @@ pub fn gen_navbar(templates: &Vec<TemplateType>) -> String {
     }
 }
 
-pub fn gen_paragraphs(templates: &Vec<TemplateType>) -> String {
-    let paragraphs = templates
-        .get_paragraphs()
-        .iter()
-        .map(|x| format!("<p>{x}</p>"))
-        .collect::<Vec<_>>();
-    paragraphs.join("\n")
+pub fn gen_paragraph(template: &TemplateType) -> String {
+    let paragraphs = template.get_paragraph().map(|x| format!("<p>{x}</p>"));
+    paragraphs.unwrap_or_default()
 }
 
-pub fn gen_codes(templates: &Vec<TemplateType>) -> String {
-    let codes = templates
+pub fn gen_code(template: &TemplateType) -> String {
+    let codes = template
         .get_code()
-        .iter()
-        .map(|x| format!("<pre><code>\n{x}\n</code></pre>"))
-        .collect::<Vec<_>>();
-    codes.join("\n")
+        .map(|x| format!("<pre><code>\n{x}\n</code></pre>"));
+    codes.unwrap_or_default()
 }
 
 pub fn gen_links(templates: &Vec<TemplateType>) -> String {
@@ -76,56 +70,48 @@ pub fn gen_nr_cms_info(templates: &Vec<TemplateType>) -> String {
     }
 }
 
-pub fn gen_image(templates: &Vec<TemplateType>, generation_dirs: &args::GenerationDirs) -> String {
-    match templates.get_image() {
-        Some(image) => {
-            if *image.1 {
-                let result = match image.2 {
-                    Some(x) => generation_dirs.copy_asset_img(image.0, *x),
-                    _ => generation_dirs.copy_asset(image.0),
-                };
-                if result.is_err() {
-                    return String::new();
+pub fn gen_image(template: &TemplateType, generation_dirs: &args::GenerationDirs) -> String {
+    template
+        .get_image()
+        .map(|(url, copy_asset, size)| {
+            if *copy_asset {
+                let result = size
+                    .and_then(|size| Some(generation_dirs.copy_asset_img(url, size)))
+                    .or_else(|| Some(generation_dirs.copy_asset(url)));
+                if let Some(Err(_e)) = result {
+                    return Default::default();
                 }
             }
-            format!(r#"<p><img src="{}"/></p>"#, image.0)
-        }
-        _ => String::new(),
-    }
+            format!(r#"<p><img src="{}"/></p>"#, url)
+        })
+        .unwrap_or_default()
 }
 
-pub fn gen_blog_post(post: &BlogPost) -> Option<String> {
+pub fn gen_blog_post(post: &BlogPost, generation_dirs: &args::GenerationDirs) -> Option<String> {
     let templates = &post.templates;
     let title = templates.get_title()?;
     let date = templates.get_date()?;
     let date = date.timestamp_millis();
-    let paragraphs = &templates.get_paragraphs();
-    let paragraphs = paragraphs
-        .iter()
-        .map(|x| format!("<p>{x}</p>"))
-        .collect::<Vec<_>>()
-        .join("\n");
-    let codes = gen_codes(templates);
+    let order_preserved_elements = gen_order_preserved_elements(templates, generation_dirs);
     Some(format!(
         r#"
     <div class="blog-post">
     <h2>{title}</h2>
     <span class="blog-post-date">{date}</span>
-    {paragraphs}
-    {codes}
+    {order_preserved_elements}
     </div>
     "#
     ))
 }
 
-pub fn gen_blog(templates: &Vec<TemplateType>) -> String {
+pub fn gen_blog(templates: &Vec<TemplateType>, generation_dirs: &args::GenerationDirs) -> String {
     if let Some(blog) = templates.get_blog() {
         let mut posts = blog.posts.clone();
         posts.sort_by(|a, b| a.post_date.cmp(&b.post_date));
         posts.reverse();
         let posts = posts
             .iter()
-            .filter_map(gen_blog_post)
+            .filter_map(|x| gen_blog_post(x, generation_dirs))
             .collect::<Vec<_>>()
             .join("\n<hr>\n");
         return format!(
@@ -139,11 +125,31 @@ pub fn gen_blog(templates: &Vec<TemplateType>) -> String {
     String::new()
 }
 
+pub fn gen_order_preserved_elements(
+    templates: &[TemplateType],
+    generation_dirs: &args::GenerationDirs,
+) -> String {
+    templates
+        .iter()
+        .filter_map(|x| match x {
+            TemplateType::Image {
+                url: _,
+                copy_asset: _,
+                size: _,
+            } => Some(gen_image(x, generation_dirs)),
+            TemplateType::Paragraph { content: _ } => Some(gen_paragraph(x)),
+            TemplateType::Code { code: _ } => Some(gen_code(x)),
+            _ => None,
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 #[cfg(test)]
 mod test {
     use std::{collections::HashMap, path::PathBuf};
 
-    use crate::types::cms_blog::CMSBlog;
+    use crate::{args::GenerationDirs, types::cms_blog::CMSBlog};
 
     use super::*;
 
@@ -163,7 +169,11 @@ mod test {
                 },
             ]),
         };
-        let gen = gen_blog_post(&post).unwrap();
+        let generation_dirs = GenerationDirs {
+            source_dir: Default::default(),
+            generation_dir: Default::default(),
+        };
+        let gen = gen_blog_post(&post, &generation_dirs).unwrap();
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -188,7 +198,11 @@ mod test {
             posts: Vec::from([post]),
         };
         let templates = Vec::from([TemplateType::Blog(blog)]);
-        let gen = gen_blog(&templates);
+        let generation_dirs = GenerationDirs {
+            source_dir: Default::default(),
+            generation_dir: Default::default(),
+        };
+        let gen = gen_blog(&templates, &generation_dirs);
         assert!(gen.contains("testtest"));
         assert!(gen.contains("testtitle"));
     }
@@ -212,17 +226,11 @@ mod test {
 
     #[test]
     fn test_gen_paragraph() {
-        let test = vec![
-            TemplateType::Paragraph {
-                content: "first".to_string(),
-            },
-            TemplateType::Paragraph {
-                content: "second".to_string(),
-            },
-        ];
-        let paragraphs = gen_paragraphs(&test);
+        let test = TemplateType::Paragraph {
+            content: "first".to_string(),
+        };
+        let paragraphs = gen_paragraph(&test);
         assert!(paragraphs.contains("first"));
-        assert!(paragraphs.contains("second"));
     }
 
     #[test]
@@ -248,19 +256,19 @@ mod test {
             source_dir: PathBuf::from("sample/"),
         };
 
-        let test = vec![TemplateType::Image {
+        let test = TemplateType::Image {
             url: "sample.jpg".to_string(),
             copy_asset: true,
             size: Some(200),
-        }];
+        };
         let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
-        let test = vec![TemplateType::Image {
+        let test = TemplateType::Image {
             url: "sample.jpg".to_string(),
             copy_asset: false,
             size: Some(200),
-        }];
+        };
         let image = gen_image(&test, &generation_dirs);
         assert!(image.contains("sample.jpg"));
 
@@ -269,39 +277,32 @@ mod test {
 
     #[test]
     fn test_image_no_exist() {
-        let mut test = Vec::<TemplateType>::new();
         let generation_dirs = args::GenerationDirs {
             generation_dir: Default::default(),
             source_dir: Default::default(),
         };
-        test.push(TemplateType::Image {
+        let test = TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
             copy_asset: true,
             size: Some(200),
-        });
+        };
         let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
 
-        let test = vec![TemplateType::Image {
+        let test = TemplateType::Image {
             url: "sample_no_exist.jpg".to_string(),
             copy_asset: true,
             size: None,
-        }];
+        };
         let image = gen_image(&test, &generation_dirs);
         assert_eq!(image, String::new());
     }
     #[test]
     fn test_no_templates() {
         let test = Vec::<TemplateType>::new();
-        let generation_dirs = args::GenerationDirs {
-            generation_dir: Default::default(),
-            source_dir: Default::default(),
-        };
         assert_eq!(gen_title(&test), String::new());
-        assert_eq!(gen_paragraphs(&test), String::new());
         assert_eq!(gen_nr_cms_info(&test), String::new());
         assert_eq!(gen_links(&test), String::new());
         assert_eq!(gen_navbar(&test), String::new());
-        assert_eq!(gen_image(&test, &generation_dirs), String::new());
     }
 }

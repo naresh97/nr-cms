@@ -11,16 +11,14 @@ pub fn gen_pages(
     let mut pages_string = String::new();
     for (name, page) in pages {
         let templates = &page.templates;
-        let paragraphs = gen_paragraphs(templates);
+        let order_preserved_elements = gen_order_preserved_elements(templates, generation_dirs);
         let links = gen_links(templates);
-        let image = gen_image(templates, generation_dirs);
-        let blog = gen_blog(templates);
+        let blog = gen_blog(templates, generation_dirs);
 
         let page_string = format!(
             r#"
         <div id="page-{name}" class="page">
-        {image}
-        {paragraphs}
+        {order_preserved_elements}
         {links}
         {blog}
         </div>
@@ -47,9 +45,22 @@ mod test {
         let pages = HashMap::from([(
             "FirstPage".to_string(),
             CMSPage {
-                templates: Vec::from([TemplateType::Name {
-                    name: "FirstPage".to_string(),
-                }]),
+                templates: Vec::from([
+                    TemplateType::Name {
+                        name: "FirstPage".to_string(),
+                    },
+                    TemplateType::Paragraph {
+                        content: "Second".to_string(),
+                    },
+                    TemplateType::Code {
+                        code: "Third".to_string(),
+                    },
+                    TemplateType::Image {
+                        url: "sample.jpg".to_string(),
+                        copy_asset: false,
+                        size: Some(10),
+                    },
+                ]),
             },
         )]);
         let generation_dirs = GenerationDirs {
@@ -58,5 +69,7 @@ mod test {
         };
         let gen = gen_pages(&pages, &generation_dirs);
         assert!(gen.contains("FirstPage"));
+        assert!(gen.contains("Second"));
+        assert!(gen.contains("Third"));
     }
 }
