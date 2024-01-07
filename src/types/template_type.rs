@@ -239,7 +239,7 @@ mod test {
         let a = TemplateType::Navbar {
             paths: Vec::from(["test".to_string()]),
         };
-        assert_eq!(a.get_navbar().unwrap().get(0).unwrap(), "test");
+        assert_eq!(a.get_navbar().unwrap().first().unwrap(), "test");
         let b = TemplateType::Title {
             title: "test".to_string(),
         };
