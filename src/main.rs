@@ -1,3 +1,5 @@
+#![feature(pattern)]
+
 use crate::{
     generation::generate_website::generate_website,
     types::{generation_dirs::StandardGenerationDirs, program_args::ProgramArgs},

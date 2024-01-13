@@ -8,6 +8,8 @@ use crate::{
     },
 };
 
+use super::generate_code::gen_code;
+
 pub fn gen_title(templates: &Vec<TemplateType>) -> &str {
     match templates.get_title() {
         Some(title) => title,
@@ -32,13 +34,6 @@ pub fn gen_navbar(templates: &Vec<TemplateType>) -> String {
 pub fn gen_paragraph(template: &TemplateType) -> String {
     let paragraphs = template.get_paragraph().map(|x| format!("<p>{x}</p>"));
     paragraphs.unwrap_or_default()
-}
-
-pub fn gen_code(template: &TemplateType) -> String {
-    let codes = template
-        .get_code()
-        .map(|x| format!("<pre><code>\n{x}\n</code></pre>"));
-    codes.unwrap_or_default()
 }
 
 pub fn gen_links(templates: &Vec<TemplateType>) -> String {

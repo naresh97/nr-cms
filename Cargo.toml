@@ -14,3 +14,5 @@ env_logger = "0.10.1"
 clap = { version = "4.4.12", features = ["derive"] }
 chrono = "0.4.31"
 tempfile = "3.9.0"
+regex = "1.10.2"
+toml = "0.8.8"
