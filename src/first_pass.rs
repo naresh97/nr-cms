@@ -1,16 +1,23 @@
 use crate::{
-    expressions::Expressions,
+    expressions::{DeclarationKind, Expression},
     utils::{FoldStr, StringChecks},
 };
 
-pub struct Parser<'a> {
+pub struct FirstPass<'a> {
     pub start: usize,
     pub current: usize,
     pub text: Vec<&'a str>,
-    pub expressions: Vec<Expressions>,
+    pub expressions: Vec<Expression>,
+    pub line: usize,
+    pub errors: Vec<FirstPassError>,
 }
 
-impl<'a> Parser<'a> {
+pub struct FirstPassError {
+    pub line: usize,
+    pub message: String,
+}
+
+impl<'a> FirstPass<'a> {
     fn advance<'b>(&mut self) -> &'b str
     where
         'a: 'b,
@@ -28,29 +35,32 @@ impl<'a> Parser<'a> {
     fn is_at_end(&self) -> bool {
         self.current == self.text.len()
     }
-    pub fn new(text: Vec<&str>) -> Parser {
-        Parser {
+    pub fn new(text: Vec<&str>) -> FirstPass {
+        FirstPass {
             start: 0,
             current: 0,
             text,
             expressions: Vec::new(),
+            line: 0,
+            errors: Vec::new(),
         }
     }
 
-    pub fn parse(mut self) -> Vec<Expressions> {
-        self.expressions.push(Expressions::Begin);
+    pub fn parse(mut self) -> Vec<Expression> {
+        self.expressions.push(Expression::Begin);
         while !self.is_at_end() {
             self.start = self.current;
             self.parse_expression();
         }
-        self.expressions.push(Expressions::EndOfFile);
+        self.expressions.push(Expression::EndOfFile);
         self.expressions
     }
     fn parse_expression(&mut self) {
         let c = self.advance();
 
         if c.is_newline() {
-            self.expressions.push(Expressions::NewLine);
+            self.expressions.push(Expression::NewLine);
+            self.line += 1;
             return;
         }
 
@@ -64,9 +74,22 @@ impl<'a> Parser<'a> {
             while !self.is_at_end() && !self.peek().is_newline() {
                 self.advance();
             }
-            let text = self.text[text_start..self.current].fold();
+            let text = self.text[text_start..self.current]
+                .fold()
+                .trim()
+                .to_string();
+            let kind = match DeclarationKind::from_str(&kind) {
+                Ok(kind) => kind,
+                Err(e) => {
+                    self.errors.push(FirstPassError {
+                        line: self.line,
+                        message: e.to_string(),
+                    });
+                    return;
+                }
+            };
             self.expressions
-                .push(Expressions::Declaration { kind, text });
+                .push(Expression::Declaration { kind, text });
             return;
         }
 
@@ -78,16 +101,18 @@ impl<'a> Parser<'a> {
                 .fold()
                 .trim()
                 .to_string();
-            self.expressions.push(Expressions::Header(text));
+            self.expressions.push(Expression::Header(text));
+            return;
         }
 
         while !self.is_at_end() && !self.peek().is_newline() {
             self.advance();
         }
+
         let text = self.text[self.start..self.current]
             .fold()
             .trim()
             .to_string();
-        self.expressions.push(Expressions::ParagraphLine(text));
+        self.expressions.push(Expression::ParagraphLine(text));
     }
 }
