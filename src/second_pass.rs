@@ -73,7 +73,11 @@ impl SecondPass {
             };
             self.advance();
         }
-        Page { name, expressions }
+        Page {
+            name,
+            expressions,
+            filename: String::new(),
+        }
     }
 }
 
@@ -86,5 +90,6 @@ pub struct Site {
 #[derive(Debug)]
 pub struct Page {
     pub name: String,
+    pub filename: String,
     pub expressions: Vec<Expression>,
 }

@@ -3,11 +3,13 @@ mod expressions;
 mod first_pass;
 mod generator;
 mod second_pass;
+mod third_pass;
 mod utils;
 
 use first_pass::FirstPass;
 use generator::Generator;
 use second_pass::SecondPass;
+use third_pass::ThirdPass;
 use unicode_segmentation::UnicodeSegmentation;
 
 fn main() {
@@ -16,6 +18,8 @@ fn main() {
     let parser = FirstPass::new(text);
     let expressions = parser.parse();
     let parser = SecondPass::new(expressions);
+    let site = parser.parse();
+    let parser = ThirdPass::new(site);
     let site = parser.parse();
     let generator = Generator::new(site);
     let files = generator.generate();
