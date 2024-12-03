@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{expressions::Expression, second_pass::Site};
+use crate::{
+    expressions::{Expression, ExpressionKind},
+    second_pass::Site,
+};
 
 pub struct ThirdPass {
     site: Site,
@@ -51,9 +54,9 @@ fn update_links_in_expression(
     expression: &mut Expression,
     page_directory: &HashMap<String, String>,
 ) {
-    let text = match expression {
-        Expression::Header(text) => text,
-        Expression::ParagraphLine(text) => text,
+    let text = match &mut expression.kind {
+        ExpressionKind::Header(text) => text,
+        ExpressionKind::ParagraphLine(text) => text,
         _ => return,
     };
     let mut current = 0;

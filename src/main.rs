@@ -15,7 +15,7 @@ use unicode_segmentation::UnicodeSegmentation;
 fn main() {
     let text = std::fs::read_to_string("./site/start.txt").unwrap();
     let text = text.graphemes(true).collect::<Vec<_>>();
-    let parser = FirstPass::new(text);
+    let parser = FirstPass::new(text, "./site/start.txt".to_owned());
     let expressions = parser.parse();
     let parser = SecondPass::new(expressions);
     let site = parser.parse();
@@ -27,6 +27,9 @@ fn main() {
         let name = file.name.to_ascii_lowercase();
         let name = name.replace(" ", "-");
         let name = format!("{}.html", name);
+        if !std::fs::exists("./output").unwrap() {
+            std::fs::create_dir("./output").unwrap();
+        }
         std::fs::write(format!("./output/{}", name), file.content).unwrap();
     }
 }

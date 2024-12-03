@@ -1,5 +1,5 @@
 use crate::{
-    expressions::Expression,
+    expressions::{Expression, ExpressionKind},
     second_pass::{Page, Site},
 };
 
@@ -27,18 +27,18 @@ impl Generator {
         while current != page.expressions.len() {
             let c = &page.expressions[current];
 
-            if let Expression::Header(header) = c {
+            if let ExpressionKind::Header(header) = &c.kind {
                 body += &format!("<h1>{}</h1>\n", header);
                 current += 1;
                 continue;
             }
 
-            if let Expression::ParagraphLine(line) = c {
+            if let ExpressionKind::ParagraphLine(line) = &c.kind {
                 let mut paragraph = line.to_string();
                 current += 1;
                 while current != page.expressions.len() {
                     let c = &page.expressions[current];
-                    if let Expression::ParagraphLine(line) = c {
+                    if let ExpressionKind::ParagraphLine(line) = &c.kind {
                         paragraph += &format!(" {}", line);
                         current += 1;
                         continue;
@@ -46,11 +46,18 @@ impl Generator {
 
                     let peek = page.expressions.get(current + 1);
 
-                    if matches!(c, Expression::NewLine) && matches!(peek, Some(Expression::NewLine))
+                    if matches!(c.kind, ExpressionKind::NewLine)
+                        && matches!(
+                            peek,
+                            Some(Expression {
+                                kind: ExpressionKind::NewLine,
+                                ..
+                            })
+                        )
                     {
                         current += 2;
                         break;
-                    } else if matches!(c, Expression::NewLine) {
+                    } else if matches!(c.kind, ExpressionKind::NewLine) {
                         current += 1;
                         continue;
                     }
@@ -60,7 +67,7 @@ impl Generator {
                 body += &format!("<p>{}</p>", paragraph);
                 continue;
             }
-            if matches!(c, Expression::NewLine | Expression::EndOfFile) {
+            if matches!(c.kind, ExpressionKind::NewLine | ExpressionKind::EndOfFile) {
                 current += 1;
                 continue;
             }

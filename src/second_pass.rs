@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::expressions::{DeclarationKind, Expression};
+use crate::expressions::{DeclarationKind, Expression, ExpressionKind};
 
 pub struct SecondPass {
     current: usize,
@@ -18,7 +18,10 @@ impl SecondPass {
     }
     fn is_at_end(&self) -> bool {
         self.current == self.expressions.len()
-            || matches!(self.expressions[self.current], Expression::EndOfFile)
+            || matches!(
+                self.expressions[self.current].kind,
+                ExpressionKind::EndOfFile
+            )
     }
     pub fn new(expressions: Vec<Expression>) -> SecondPass {
         SecondPass {
@@ -28,13 +31,14 @@ impl SecondPass {
     }
     pub fn parse(mut self) -> Site {
         while !self.is_at_end() {
-            let c = self.advance();
+            let exp = self.advance();
+            let c = &exp.kind;
 
-            if matches!(c, Expression::Begin) {
+            if matches!(c, ExpressionKind::Begin) {
                 continue;
             }
 
-            if let Expression::Declaration {
+            if let ExpressionKind::Declaration {
                 kind: DeclarationKind::SiteTitle,
                 text: title,
             } = c
@@ -50,10 +54,10 @@ impl SecondPass {
         let mut pages = Vec::new();
         while !self.is_at_end() {
             let c = self.advance();
-            if let Expression::Declaration {
+            if let ExpressionKind::Declaration {
                 kind: DeclarationKind::Page,
                 text: page_name,
-            } = c
+            } = &c.kind
             {
                 let page_name = page_name.clone();
                 let page = self.parse_page(page_name);
@@ -71,10 +75,10 @@ impl SecondPass {
         let mut expressions = Vec::new();
         while !self.is_at_end() {
             let c = self.peek();
-            match c {
-                Expression::Header(_) | Expression::ParagraphLine(_) | Expression::NewLine => {
-                    expressions.push(c.clone())
-                }
+            match &c.kind {
+                ExpressionKind::Header(_)
+                | ExpressionKind::ParagraphLine(_)
+                | ExpressionKind::NewLine => expressions.push(c.clone()),
                 _ => break,
             };
             self.advance();
