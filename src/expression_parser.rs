@@ -3,25 +3,25 @@ use crate::{
     utils::{FoldStr, StringChecks},
 };
 
-pub struct FirstPass<'a> {
+pub struct ExpressionParser<'a> {
     pub start: usize,
     pub current: usize,
     pub line: usize,
     pub text: Vec<&'a str>,
-    pub errors: Vec<FirstPassError>,
+    pub errors: Vec<ExpressionParserError>,
     pub expressions: Vec<Expression>,
 }
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct FirstPassError {
+pub struct ExpressionParserError {
     pub line: usize,
     pub message: String,
 }
 
-impl FirstPass<'_> {
-    pub fn new(text: Vec<&str>) -> FirstPass {
-        FirstPass {
+impl ExpressionParser<'_> {
+    pub fn new(text: Vec<&str>) -> ExpressionParser {
+        ExpressionParser {
             start: 0,
             current: 0,
             line: 0,
@@ -114,7 +114,7 @@ impl FirstPass<'_> {
     }
 }
 
-impl<'a> FirstPass<'a> {
+impl<'a> ExpressionParser<'a> {
     fn advance<'b>(&mut self) -> &'b str
     where
         'a: 'b,
@@ -129,14 +129,12 @@ impl<'a> FirstPass<'a> {
     fn is_at_end(&self) -> bool {
         self.current == self.text.len()
     }
-
     fn push_error(&mut self, message: String) {
-        self.errors.push(FirstPassError {
+        self.errors.push(ExpressionParserError {
             line: self.line,
             message,
         });
     }
-
     fn push_expression(&mut self, kind: Expression) {
         self.expressions.push(kind);
     }

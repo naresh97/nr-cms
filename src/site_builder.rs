@@ -2,15 +2,28 @@ use anyhow::bail;
 
 use crate::expressions::{DeclarationKind, Expression};
 
-pub struct SecondPass {
+pub struct SiteBuilder {
     current: usize,
     expressions: Vec<Expression>,
     output_site: Site,
 }
 
-impl SecondPass {
-    pub fn new(expressions: Vec<Expression>) -> SecondPass {
-        SecondPass {
+#[derive(Debug, Default)]
+pub struct Site {
+    pub name: String,
+    pub pages: Vec<Page>,
+}
+
+#[derive(Debug, Default)]
+pub struct Page {
+    pub name: String,
+    pub filename: String,
+    pub expressions: Vec<Expression>,
+}
+
+impl SiteBuilder {
+    pub fn new(expressions: Vec<Expression>) -> SiteBuilder {
+        SiteBuilder {
             current: 0,
             expressions,
             output_site: Site::default(),
@@ -72,7 +85,7 @@ impl SecondPass {
     }
 }
 
-impl SecondPass {
+impl SiteBuilder {
     fn advance(&mut self) -> &Expression {
         let result = &self.expressions[self.current];
         self.current += 1;
@@ -88,16 +101,14 @@ impl SecondPass {
 }
 
 fn generate_page_filename(name: &str) -> String {
-    let name = name.trim().to_ascii_lowercase().replace(" ", "-");
-    let name = format!("{}.html", name);
+    let name = name.trim().to_ascii_lowercase().replace(' ', "-");
+    let name = format!("{name}.html");
     name
 }
 
 fn update_links_in_expression(expression: &mut Expression) {
-    let text = match expression {
-        Expression::Header(text) => text,
-        Expression::ParagraphLine(text) => text,
-        _ => return,
+    let (Expression::ParagraphLine(text) | Expression::Header(text)) = expression else {
+        return;
     };
     let mut current = 0;
     let t = text.chars().collect::<Vec<_>>();
@@ -118,7 +129,7 @@ fn update_links_in_expression(expression: &mut Expression) {
                         a
                     });
                     let filename = generate_page_filename(&page_name);
-                    let text = format!("<a href=\"{}\">{}</a>", filename, page_name);
+                    let text = format!("<a href=\"{filename}\">{page_name}</a>");
                     let mut text = text.chars().collect::<Vec<_>>();
                     new_t.append(&mut text);
                     current += 2;
@@ -138,17 +149,4 @@ fn update_links_in_expression(expression: &mut Expression) {
         a
     });
     *text = new_t;
-}
-
-#[derive(Debug, Default)]
-pub struct Site {
-    pub name: String,
-    pub pages: Vec<Page>,
-}
-
-#[derive(Debug, Default)]
-pub struct Page {
-    pub name: String,
-    pub filename: String,
-    pub expressions: Vec<Expression>,
 }

@@ -1,14 +1,14 @@
 use crate::{
     expressions::Expression,
-    second_pass::{Page, Site},
+    site_builder::{Page, Site},
 };
 
-pub struct Generator {
+pub struct SiteGenerator {
     site: Site,
 }
-impl Generator {
-    pub fn new(site: Site) -> Generator {
-        Generator { site }
+impl SiteGenerator {
+    pub fn new(site: Site) -> SiteGenerator {
+        SiteGenerator { site }
     }
     pub fn generate(self) -> Vec<PageBody> {
         let mut page_bodies = self
@@ -18,7 +18,7 @@ impl Generator {
             .map(Self::generate_page)
             .collect::<Vec<_>>();
         let navbar = self.generate_navbar();
-        self.insert_front_matter(navbar, &mut page_bodies);
+        self.insert_front_matter(&navbar, &mut page_bodies);
         page_bodies
     }
     fn generate_page(page: &Page) -> PageBody {
@@ -28,7 +28,7 @@ impl Generator {
             let c = &page.expressions[current];
 
             if let Expression::Header(header) = c {
-                body += &format!("<h1>{}</h1>\n", header);
+                body += &format!("<h1>{header}</h1>\n");
                 current += 1;
                 continue;
             }
@@ -39,7 +39,7 @@ impl Generator {
                 while current != page.expressions.len() {
                     let c = &page.expressions[current];
                     if let Expression::ParagraphLine(line) = c {
-                        paragraph += &format!(" {}", line);
+                        paragraph += &format!(" {line}");
                         current += 1;
                         continue;
                     }
@@ -57,7 +57,7 @@ impl Generator {
 
                     break;
                 }
-                body += &format!("<p>{}</p>", paragraph);
+                body += &format!("<p>{paragraph}</p>");
                 continue;
             }
             if matches!(c, Expression::NewLine | Expression::EndOfFile) {
@@ -71,7 +71,7 @@ impl Generator {
         }
     }
 
-    fn insert_front_matter(&self, navbar: String, page_bodies: &mut [PageBody]) {
+    fn insert_front_matter(&self, navbar: &str, page_bodies: &mut [PageBody]) {
         let style = include_str!("../resources/default-style.css");
         for body in page_bodies {
             body.content = format!(
@@ -102,7 +102,7 @@ impl Generator {
                      name,
                      filename,
                      expressions: _,
-                 }| format!("<a href=\"{}\">{}</a>", filename, name),
+                 }| format!("<a href=\"{filename}\">{name}</a>"),
             )
             .collect::<Vec<_>>()
             .join(" - ")
