@@ -1,5 +1,6 @@
 use crate::{
     expressions::Expression,
+    markdown_translator::MarkdownTranslator,
     site_builder::{Page, Site},
 };
 
@@ -55,6 +56,11 @@ impl SiteGenerator {
                     }
 
                     break;
+                }
+                let translator = MarkdownTranslator::new(&paragraph);
+                let (paragraph, errors) = translator.translate();
+                for e in errors {
+                    println!("Markdown Error in Page '{}'\n{e}", page.name);
                 }
                 body += &format!("<p>{paragraph}</p>");
                 continue;

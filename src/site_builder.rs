@@ -1,6 +1,9 @@
 use anyhow::bail;
 
-use crate::expressions::{DeclarationKind, Expression};
+use crate::{
+    expressions::{DeclarationKind, Expression},
+    utils::generate_page_filename,
+};
 
 pub struct SiteBuilder {
     current: usize,
@@ -67,11 +70,8 @@ impl SiteBuilder {
         while !self.is_at_end() {
             let c = self.peek();
             match c {
-                Expression::NewLine => expressions.push(c.clone()),
-                Expression::Header(_) | Expression::ParagraphLine(_) => {
-                    let mut c = c.clone();
-                    update_links_in_expression(&mut c);
-                    expressions.push(c);
+                Expression::NewLine | Expression::Header(_) | Expression::ParagraphLine(_) => {
+                    expressions.push(c.clone());
                 }
                 _ => break,
             };
@@ -98,55 +98,4 @@ impl SiteBuilder {
         self.current == self.expressions.len()
             || matches!(self.expressions[self.current], Expression::EndOfFile)
     }
-}
-
-fn generate_page_filename(name: &str) -> String {
-    let name = name.trim().to_ascii_lowercase().replace(' ', "-");
-    let name = format!("{name}.html");
-    name
-}
-
-fn update_links_in_expression(expression: &mut Expression) {
-    let (Expression::ParagraphLine(text) | Expression::Header(text)) = expression else {
-        return;
-    };
-    let mut current = 0;
-    let t = text.chars().collect::<Vec<_>>();
-    let mut new_t = Vec::with_capacity(t.len());
-    while current != t.len() {
-        let c = t[current];
-        let peek = t.get(current + 1);
-        if matches!(c, '[') && matches!(peek, Some('[')) {
-            let start = current + 2;
-            while current != t.len() {
-                let c = t[current];
-                let peek = t.get(current + 1);
-                if matches!(c, ']') && matches!(peek, Some(']')) {
-                    let page_name = t[start..current].iter().fold(String::new(), |mut a, b| {
-                        let mut buf = [0u8; 4];
-                        let b = b.encode_utf8(&mut buf);
-                        a += b;
-                        a
-                    });
-                    let filename = generate_page_filename(&page_name);
-                    let text = format!("<a href=\"{filename}\">{page_name}</a>");
-                    let mut text = text.chars().collect::<Vec<_>>();
-                    new_t.append(&mut text);
-                    current += 2;
-                    break;
-                }
-                current += 1;
-            }
-        } else {
-            new_t.push(c);
-            current += 1;
-        }
-    }
-    let new_t = new_t.iter().fold(String::new(), |mut a, b| {
-        let mut buf = [0u8; 4];
-        let b = b.encode_utf8(&mut buf);
-        a += b;
-        a
-    });
-    *text = new_t;
 }

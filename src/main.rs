@@ -8,31 +8,30 @@ mod expressions;
 mod site_builder;
 mod site_generator;
 mod utils;
-
-use std::{path::Path, sync::mpsc};
+mod markdown_translator;
 
 use expression_parser::ExpressionParser;
-use notify::Watcher;
 use site_builder::SiteBuilder;
 use site_generator::SiteGenerator;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[allow(clippy::restriction)]
 fn main() {
-    let (tx, rx) = mpsc::channel::<notify::Result<notify::Event>>();
-    let mut watcher = notify::recommended_watcher(tx).unwrap();
-    watcher
-        .watch(Path::new("./site"), notify::RecursiveMode::Recursive)
-        .unwrap();
-    for res in rx {
-        if res.is_ok() {
-            if let Err(e) = generate_site("./site/start.txt") {
-                println!("{e}");
-                return;
-            }
-            println!("Updated!");
-        }
-    }
+    generate_site("./site/start.txt").unwrap();
+    // let (tx, rx) = mpsc::channel::<notify::Result<notify::Event>>();
+    // let mut watcher = notify::recommended_watcher(tx).unwrap();
+    // watcher
+    //     .watch(Path::new("./site"), notify::RecursiveMode::Recursive)
+    //     .unwrap();
+    // for res in rx {
+    //     if res.is_ok() {
+    //         if let Err(e) = generate_site("./site/start.txt") {
+    //             println!("{e}");
+    //             return;
+    //         }
+    //         println!("Updated!");
+    //     }
+    // }
 }
 
 fn generate_site(start_file: &str) -> anyhow::Result<()> {

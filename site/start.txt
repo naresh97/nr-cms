@@ -10,7 +10,7 @@ If you're here in a professional capacity, feel free to wander over to [[About M
 Pretty cool website right? No? Well we can agree to disagree. I created this website using
 a static website generator that I wrote myself. It takes a simple collection of text-files
 as an input, and spits out a fully-functional (if not a little bare-bones) website. [Check it
-out on Github](https://github.com/naresh97/nr-cms)
+out on Github!](https://github.com/naresh97/nr-cms)
 
 >[Page] About Me
 # Naresh, the professional
