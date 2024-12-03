@@ -9,7 +9,8 @@ If you're here in a professional capacity, feel free to wander over to [[About M
 # This website.
 Pretty cool website right? No? Well we can agree to disagree. I created this website using
 a static website generator that I wrote myself. It takes a simple collection of text-files
-as an input, and spits out a fully-functional (if not a little bare-bones) website.
+as an input, and spits out a fully-functional (if not a little bare-bones) website. [Check it
+out on Github](https://github.com/naresh97/nr-cms)
 
 >[Page] About Me
 # Naresh, the professional
@@ -44,3 +45,4 @@ on the telecommunications network. It would select random phone numbers from a p
 the network, and send audio samples through the call. Then it would measure the audio quality and spit
 out test data. As someone who did not yet fully understand why segmentation faults happen in C++ code,
 I must say, I'm quite proud of how it turned out.
+

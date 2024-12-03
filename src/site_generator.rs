@@ -67,6 +67,7 @@ impl SiteGenerator {
         PageBody {
             name: page.name.clone(),
             content: body,
+            filename: page.filename.clone(),
         }
     }
 
@@ -115,4 +116,5 @@ impl SiteGenerator {
 pub struct PageBody {
     pub name: String,
     pub content: String,
+    pub filename: String,
 }

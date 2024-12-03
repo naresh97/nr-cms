@@ -18,27 +18,32 @@ pub struct ExpressionParserError {
     pub line: usize,
     pub message: String,
 }
+impl std::fmt::Display for ExpressionParserError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Line {}: {}", self.line, self.message)
+    }
+}
 
 impl ExpressionParser<'_> {
     pub fn new(text: Vec<&str>) -> ExpressionParser {
         ExpressionParser {
             start: 0,
             current: 0,
-            line: 0,
+            line: 1,
             expressions: Vec::new(),
             errors: Vec::new(),
             text,
         }
     }
 
-    pub fn parse(mut self) -> Vec<Expression> {
+    pub fn parse(mut self) -> (Vec<Expression>, Vec<ExpressionParserError>) {
         self.push_expression(Expression::Begin);
         while !self.is_at_end() {
             self.start = self.current;
             self.parse_expression();
         }
         self.push_expression(Expression::EndOfFile);
-        self.expressions
+        (self.expressions, self.errors)
     }
 
     fn parse_expression(&mut self) {
