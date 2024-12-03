@@ -1,5 +1,5 @@
 use crate::{
-    expressions::{Expression, ExpressionKind},
+    expressions::Expression,
     second_pass::{Page, Site},
 };
 
@@ -27,18 +27,18 @@ impl Generator {
         while current != page.expressions.len() {
             let c = &page.expressions[current];
 
-            if let ExpressionKind::Header(header) = &c.kind {
+            if let Expression::Header(header) = c {
                 body += &format!("<h1>{}</h1>\n", header);
                 current += 1;
                 continue;
             }
 
-            if let ExpressionKind::ParagraphLine(line) = &c.kind {
+            if let Expression::ParagraphLine(line) = c {
                 let mut paragraph = line.to_string();
                 current += 1;
                 while current != page.expressions.len() {
                     let c = &page.expressions[current];
-                    if let ExpressionKind::ParagraphLine(line) = &c.kind {
+                    if let Expression::ParagraphLine(line) = c {
                         paragraph += &format!(" {}", line);
                         current += 1;
                         continue;
@@ -46,18 +46,11 @@ impl Generator {
 
                     let peek = page.expressions.get(current + 1);
 
-                    if matches!(c.kind, ExpressionKind::NewLine)
-                        && matches!(
-                            peek,
-                            Some(Expression {
-                                kind: ExpressionKind::NewLine,
-                                ..
-                            })
-                        )
+                    if matches!(c, Expression::NewLine) && matches!(peek, Some(Expression::NewLine))
                     {
                         current += 2;
                         break;
-                    } else if matches!(c.kind, ExpressionKind::NewLine) {
+                    } else if matches!(c, Expression::NewLine) {
                         current += 1;
                         continue;
                     }
@@ -67,7 +60,7 @@ impl Generator {
                 body += &format!("<p>{}</p>", paragraph);
                 continue;
             }
-            if matches!(c.kind, ExpressionKind::NewLine | ExpressionKind::EndOfFile) {
+            if matches!(c, Expression::NewLine | Expression::EndOfFile) {
                 current += 1;
                 continue;
             }
@@ -102,9 +95,15 @@ impl Generator {
 
     fn generate_navbar(&self) -> String {
         self.site
-            .page_directory
+            .pages
             .iter()
-            .map(|(name, filename)| format!("<a href=\"{}\">{}</a>", filename, name))
+            .map(
+                |Page {
+                     name,
+                     filename,
+                     expressions: _,
+                 }| format!("<a href=\"{}\">{}</a>", filename, name),
+            )
             .collect::<Vec<_>>()
             .join(" - ")
     }

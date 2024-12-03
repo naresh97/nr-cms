@@ -1,10 +1,9 @@
 use crate::{
-    expressions::{DeclarationKind, Expression, ExpressionKind, Location},
+    expressions::{DeclarationKind, Expression},
     utils::{FoldStr, StringChecks},
 };
 
 pub struct FirstPass<'a> {
-    pub file: String,
     pub start: usize,
     pub current: usize,
     pub line: usize,
@@ -13,13 +12,15 @@ pub struct FirstPass<'a> {
     pub expressions: Vec<Expression>,
 }
 
+#[derive(Debug)]
+#[allow(dead_code)]
 pub struct FirstPassError {
     pub line: usize,
     pub message: String,
 }
 
 impl FirstPass<'_> {
-    pub fn new(text: Vec<&str>, file: String) -> FirstPass {
+    pub fn new(text: Vec<&str>) -> FirstPass {
         FirstPass {
             start: 0,
             current: 0,
@@ -27,17 +28,16 @@ impl FirstPass<'_> {
             expressions: Vec::new(),
             errors: Vec::new(),
             text,
-            file,
         }
     }
 
     pub fn parse(mut self) -> Vec<Expression> {
-        self.push_expression(ExpressionKind::Begin);
+        self.push_expression(Expression::Begin);
         while !self.is_at_end() {
             self.start = self.current;
             self.parse_expression();
         }
-        self.push_expression(ExpressionKind::EndOfFile);
+        self.push_expression(Expression::EndOfFile);
         self.expressions
     }
 
@@ -83,7 +83,7 @@ impl FirstPass<'_> {
                 return;
             }
         };
-        self.push_expression(ExpressionKind::Declaration { kind, text });
+        self.push_expression(Expression::Declaration { kind, text });
     }
 
     fn parse_header(&mut self) {
@@ -94,7 +94,7 @@ impl FirstPass<'_> {
             .fold()
             .trim()
             .to_string();
-        self.push_expression(ExpressionKind::Header(text));
+        self.push_expression(Expression::Header(text));
     }
 
     fn parse_paragraph(&mut self) {
@@ -105,11 +105,11 @@ impl FirstPass<'_> {
             .fold()
             .trim()
             .to_string();
-        self.push_expression(ExpressionKind::ParagraphLine(text));
+        self.push_expression(Expression::ParagraphLine(text));
     }
 
     fn parse_newline(&mut self) {
-        self.push_expression(ExpressionKind::NewLine);
+        self.push_expression(Expression::NewLine);
         self.line += 1;
     }
 }
@@ -126,9 +126,6 @@ impl<'a> FirstPass<'a> {
     fn peek(&self) -> &str {
         self.text[self.current]
     }
-    fn peek_next(&self) -> &str {
-        self.text[self.current + 1]
-    }
     fn is_at_end(&self) -> bool {
         self.current == self.text.len()
     }
@@ -140,13 +137,7 @@ impl<'a> FirstPass<'a> {
         });
     }
 
-    fn push_expression(&mut self, kind: ExpressionKind) {
-        self.expressions.push(Expression {
-            kind,
-            location: Location {
-                line: self.line,
-                file: self.file.clone(),
-            },
-        });
+    fn push_expression(&mut self, kind: Expression) {
+        self.expressions.push(kind);
     }
 }
