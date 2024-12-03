@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::expressions::{DeclarationKind, Expression};
 
 pub struct SecondPass {
@@ -58,7 +60,11 @@ impl SecondPass {
                 pages.push(page);
             }
         }
-        Site { name, pages }
+        Site {
+            name,
+            pages,
+            page_directory: Default::default(),
+        }
     }
 
     fn parse_page(&mut self, name: String) -> Page {
@@ -85,6 +91,7 @@ impl SecondPass {
 pub struct Site {
     pub name: String,
     pub pages: Vec<Page>,
+    pub page_directory: HashMap<String, String>,
 }
 
 #[derive(Debug)]

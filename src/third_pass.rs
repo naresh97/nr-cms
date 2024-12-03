@@ -12,8 +12,9 @@ impl ThirdPass {
     }
     pub fn parse(mut self) -> Site {
         let page_directory = self.generate_page_directory();
-        self.update_page_filenames(&page_directory);
-        self.update_links_in_site(&page_directory);
+        self.site.page_directory = page_directory;
+        self.update_page_filenames();
+        self.update_links_in_site();
         self.site
     }
 
@@ -26,16 +27,21 @@ impl ThirdPass {
         page_directory
     }
 
-    fn update_page_filenames(&mut self, page_directory: &HashMap<String, String>) {
+    fn update_page_filenames(&mut self) {
         for page in &mut self.site.pages {
-            page.filename = page_directory.get(&page.name).unwrap().to_string();
+            page.filename = self
+                .site
+                .page_directory
+                .get(&page.name)
+                .unwrap()
+                .to_string();
         }
     }
 
-    fn update_links_in_site(&mut self, page_directory: &HashMap<String, String>) {
+    fn update_links_in_site(&mut self) {
         for page in &mut self.site.pages {
             for expression in &mut page.expressions {
-                update_links_in_expression(expression, page_directory);
+                update_links_in_expression(expression, &self.site.page_directory);
             }
         }
     }
