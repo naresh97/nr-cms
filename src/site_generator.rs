@@ -17,8 +17,7 @@ impl SiteGenerator {
             .iter()
             .map(Self::generate_page)
             .collect::<Vec<_>>();
-        let navbar = self.generate_navbar();
-        self.insert_front_matter(&navbar, &mut page_bodies);
+        self.insert_front_matter(&mut page_bodies);
         page_bodies
     }
     fn generate_page(page: &Page) -> PageBody {
@@ -71,21 +70,22 @@ impl SiteGenerator {
         }
     }
 
-    fn insert_front_matter(&self, navbar: &str, page_bodies: &mut [PageBody]) {
+    fn insert_front_matter(&self, page_bodies: &mut [PageBody]) {
         let style = include_str!("../resources/default-style.css");
+        let navbar = self.generate_navbar();
         for body in page_bodies {
             body.content = format!(
                 "<html>
 <head>
-<title>{} - {}</title>
+<title>{0} - {1}</title>
 <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
 <style type=\"text/css\">
-{}
+{2}
 </style>
 </head>
 <body>
-{}
-{}
+{3}
+{4}
 </body>
 </html>",
                 body.name, self.site.name, style, navbar, body.content
@@ -94,7 +94,8 @@ impl SiteGenerator {
     }
 
     fn generate_navbar(&self) -> String {
-        self.site
+        let links = self
+            .site
             .pages
             .iter()
             .map(
@@ -105,7 +106,8 @@ impl SiteGenerator {
                  }| format!("<a href=\"{filename}\">{name}</a>"),
             )
             .collect::<Vec<_>>()
-            .join(" - ")
+            .join(" - ");
+        format!("<div class=\"navbar\">{links}</div><hr/>")
     }
 }
 

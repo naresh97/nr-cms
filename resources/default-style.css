@@ -8,7 +8,10 @@ body {
 
 @media only screen and (max-width: 130ch) {
     body {
-        background-color: lightblue;
         width: 95%;
+    }
+
+    .navbar {
+        font-size: 20pt;
     }
 }
