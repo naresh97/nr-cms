@@ -5,33 +5,46 @@
 
 mod expression_parser;
 mod expressions;
+mod markdown_translator;
 mod site_builder;
 mod site_generator;
 mod utils;
-mod markdown_translator;
+
+use std::{path::Path, sync::mpsc};
 
 use expression_parser::ExpressionParser;
+use notify::{EventKind, Watcher};
 use site_builder::SiteBuilder;
 use site_generator::SiteGenerator;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[allow(clippy::restriction)]
 fn main() {
+    let args = std::env::args().collect::<Vec<_>>();
+    let watch = args.get(1).is_some_and(|arg| arg == "watch");
+    if watch {
+        let (tx, rx) = mpsc::channel::<notify::Result<notify::Event>>();
+        let mut watcher = notify::recommended_watcher(tx).unwrap();
+        watcher
+            .watch(Path::new("./site"), notify::RecursiveMode::Recursive)
+            .unwrap();
+        for res in rx.into_iter().flatten() {
+            match res.kind {
+                EventKind::Create(_)
+                | EventKind::Modify(_)
+                | EventKind::Remove(_)
+                | EventKind::Other => (),
+                _ => continue,
+            };
+            if let Err(e) = generate_site("./site/start.txt") {
+                println!("{e}");
+                return;
+            }
+            println!("Updated!");
+        }
+        return;
+    }
     generate_site("./site/start.txt").unwrap();
-    // let (tx, rx) = mpsc::channel::<notify::Result<notify::Event>>();
-    // let mut watcher = notify::recommended_watcher(tx).unwrap();
-    // watcher
-    //     .watch(Path::new("./site"), notify::RecursiveMode::Recursive)
-    //     .unwrap();
-    // for res in rx {
-    //     if res.is_ok() {
-    //         if let Err(e) = generate_site("./site/start.txt") {
-    //             println!("{e}");
-    //             return;
-    //         }
-    //         println!("Updated!");
-    //     }
-    // }
 }
 
 fn generate_site(start_file: &str) -> anyhow::Result<()> {
