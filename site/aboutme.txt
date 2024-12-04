@@ -1,0 +1,34 @@
+>[Page] About Me
+
+# Naresh, the professional
+Are you a recruiter, or otherwise representing a prospective employer? Welcome to you too.
+I hope you can forgive the sparse aesthetics of this website.
+
+So who is this mysterious programmer rambling on about himself and his half-baked projects? (I hope 
+you'll also forgive my hopeless attempt at humor. Then again, it might be a good way to filter me out,
+for better or for worse).
+
+Let's see, where should we start... at the beginning, of course! The VERY beginning? Well, perhaps we'll
+save that for another time. Let's look at some academics:
+
+I came to Germany in 2015, spent a year learning German, then enrolled myself in the Fachhochschule Aachen's
+Bachelor programme for Phyical Engineering (Physikingenieurwesen). I ended up spending too many hours
+in a clean room, tweaking mirrors and lasers, and eventually produced my spectacular first academic work
+on lasers. I wrote about how a femtosecond pulsed-laser could be constructed, and I spent many evenings
+in that lab, trying to prove my hypothesis. I got, somewhere, but some hopeful successor will have the
+privelege of one day firing that baby up.
+
+Not wanting to spend my glory years in a dark basement, wearing goggles and having perpetually bad hair
+(no offense, laser scientists). I decided that the Laser Physics life was not for me. I leaned hard
+into my love for programming and computers, and decided to jump ship to enroll myself at the Master's
+program at the Hochschule Düsseldorf for Electrical Engineering for Automation. As much as I enjoyed
+delving into theoretical physics, working with and programming machines and other complex systems
+was also quite a treat. I graduated in early 2022.
+
+Needing to fund my endless desire to not starve, I also worked a part-time job at a telecommunications
+company. They gave me my very own pet project, which would become my first professional programming job.
+With the generous help of my colleagues, I built a relatively stable system to run end-to-end tests
+on the telecommunications network. It would select random phone numbers from a pool, register them on
+the network, and send audio samples through the call. Then it would measure the audio quality and spit
+out test data. As someone who did not yet fully understand why segmentation faults happen in C++ code,
+I must say, I'm quite proud of how it turned out.

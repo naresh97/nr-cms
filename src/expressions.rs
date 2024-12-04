@@ -14,6 +14,7 @@ pub enum Expression {
 pub enum DeclarationKind {
     SiteTitle,
     Page,
+    Include,
 }
 
 impl DeclarationKind {
@@ -21,6 +22,7 @@ impl DeclarationKind {
         match text {
             "Site-Title" => Ok(DeclarationKind::SiteTitle),
             "Page" => Ok(DeclarationKind::Page),
+            "Include" => Ok(DeclarationKind::Include),
             _ => bail!("{} is not a valid declartion type", text),
         }
     }

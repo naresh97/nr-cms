@@ -16,7 +16,6 @@ use expression_parser::ExpressionParser;
 use notify::{EventKind, Watcher};
 use site_builder::SiteBuilder;
 use site_generator::SiteGenerator;
-use unicode_segmentation::UnicodeSegmentation;
 
 #[allow(clippy::restriction)]
 fn main() {
@@ -48,10 +47,7 @@ fn main() {
 }
 
 fn generate_site(start_file: &str) -> anyhow::Result<()> {
-    let text = std::fs::read_to_string(start_file)?;
-    let text = text.graphemes(true).collect::<Vec<_>>();
-
-    let expression_parser = ExpressionParser::new(text);
+    let expression_parser = ExpressionParser::from_file(Path::new(start_file))?;
     let (expressions, errors) = expression_parser.parse();
     for e in errors {
         println!("Expression Error: {e}");
