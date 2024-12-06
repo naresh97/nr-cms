@@ -7,18 +7,18 @@ pub struct ExpressionParser {
     pub current: usize,
     pub line: usize,
     pub text: Vec<char>,
-    pub errors: Vec<ExpressionParserError>,
+    pub errors: Vec<Error>,
     pub expressions: Vec<Expression>,
     pub filename: PathBuf,
 }
 
 #[derive(Debug)]
 #[allow(dead_code)]
-pub struct ExpressionParserError {
+pub struct Error {
     pub line: usize,
     pub message: String,
 }
-impl std::fmt::Display for ExpressionParserError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Line {}: {}", self.line, self.message)
     }
@@ -42,7 +42,7 @@ impl ExpressionParser {
         Ok(Self::new(text, filename))
     }
 
-    pub fn parse(mut self) -> (Vec<Expression>, Vec<ExpressionParserError>) {
+    pub fn parse(mut self) -> (Vec<Expression>, Vec<Error>) {
         self.push_expression(Expression::Begin);
         while !self.is_at_end() {
             self.start = self.current;
@@ -189,7 +189,7 @@ impl ExpressionParser {
         is_windows || peek == '\r' || peek == '\n'
     }
     fn push_error(&mut self, message: String) {
-        self.errors.push(ExpressionParserError {
+        self.errors.push(Error {
             line: self.line,
             message,
         });

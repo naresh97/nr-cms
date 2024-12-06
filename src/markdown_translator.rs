@@ -5,13 +5,13 @@ pub struct MarkdownTranslator {
     start: usize,
     text: Vec<char>,
     output: Vec<char>,
-    errors: Vec<MarkdownTranslatorError>,
+    errors: Vec<Error>,
 }
-pub struct MarkdownTranslatorError {
+pub struct Error {
     text: String,
     message: String,
 }
-impl std::fmt::Display for MarkdownTranslatorError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Markdown Error: {}\n\n{}here", self.message, self.text)
     }
@@ -28,7 +28,7 @@ impl MarkdownTranslator {
             errors: Vec::new(),
         }
     }
-    pub fn translate(mut self) -> (String, Vec<MarkdownTranslatorError>) {
+    pub fn translate(mut self) -> (String, Vec<Error>) {
         while self.current != self.text.len() {
             self.start = self.current;
             self.translate_next();
@@ -109,7 +109,7 @@ impl MarkdownTranslator {
         self.output.extend(text.chars());
     }
     fn push_error(&mut self, message: String) {
-        self.errors.push(MarkdownTranslatorError {
+        self.errors.push(Error {
             text: format!(
                 "{}<---",
                 self.text[self.start..self.current]
